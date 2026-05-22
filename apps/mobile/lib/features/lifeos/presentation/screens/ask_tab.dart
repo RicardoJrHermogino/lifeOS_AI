@@ -21,7 +21,7 @@ class AskTab extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
             AppTextField(
               labelText: 'Ask',
@@ -114,8 +114,7 @@ class _PromptChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             gradient: AppGradients.cardGradient(brightness),
-            border:
-                Border.all(color: AppColors.border(brightness), width: 0.5),
+            border: Border.all(color: AppColors.border(brightness), width: 0.5),
             borderRadius: AppRadii.pillRadius,
           ),
           child: Text(text, style: theme.textTheme.labelLarge),

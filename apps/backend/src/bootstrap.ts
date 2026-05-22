@@ -42,9 +42,10 @@ async function createApplication(): Promise<INestApplication> {
  */
 async function startApplication(app: INestApplication): Promise<void> {
 	const port = env.PORT
-	await app.listen(port)
+	const host = env.HOST
+	await app.listen(port, host)
 
-	logger.log(`Application is running on: http://localhost:${port}`)
+	logger.log(`Application is running on: http://${host}:${port}`)
 	logger.log(`Environment: ${env.NODE_ENV}`)
 }
 

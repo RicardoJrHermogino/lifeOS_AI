@@ -28,7 +28,7 @@ class CaptureTab extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
             Text(
               'What should your future self remember?',
@@ -135,10 +135,7 @@ class CaptureTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.s20),
-            Text(
-              'Recent captures',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text('Recent captures', style: theme.textTheme.titleMedium),
             const SizedBox(height: AppSpacing.s12),
             const _RecentCaptureTile(
               title: 'Clarified MVP direction',
@@ -176,10 +173,7 @@ class _InfoChip extends StatelessWidget {
         border: Border.all(color: AppColors.border(brightness), width: 0.5),
         borderRadius: AppRadii.pillRadius,
       ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge,
-      ),
+      child: Text(label, style: theme.textTheme.labelLarge),
     );
   }
 }
@@ -212,8 +206,10 @@ class _RecentCaptureTile extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: AppGradients.buttonGradient(brightness),
               borderRadius: BorderRadius.circular(AppRadii.card),
-              border:
-                  Border.all(color: AppColors.border(brightness), width: 0.5),
+              border: Border.all(
+                color: AppColors.border(brightness),
+                width: 0.5,
+              ),
             ),
             child: Icon(source, color: AppColors.primary(brightness), size: 22),
           ),

@@ -26,7 +26,7 @@ class TimelineTab extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
             Text(
               'Your life, organized by memory.',
@@ -104,8 +104,10 @@ class _FilterChip extends StatelessWidget {
               gradient: selected
                   ? AppGradients.buttonGradient(brightness)
                   : AppGradients.cardGradient(brightness),
-              border:
-                  Border.all(color: AppColors.border(brightness), width: 0.5),
+              border: Border.all(
+                color: AppColors.border(brightness),
+                width: 0.5,
+              ),
               borderRadius: AppRadii.pillRadius,
             ),
             child: Text(
@@ -224,10 +226,7 @@ class _TimelineMemory extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.s12),
                       Expanded(
-                        child: Text(
-                          title,
-                          style: theme.textTheme.titleSmall,
-                        ),
+                        child: Text(title, style: theme.textTheme.titleSmall),
                       ),
                     ],
                   ),

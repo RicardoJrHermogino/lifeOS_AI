@@ -21,7 +21,7 @@ class InsightsTab extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
             AppCard(
               radius: AppRadii.cardLarge,
@@ -30,8 +30,9 @@ class InsightsTab extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: DecoratedBox(
-                      decoration:
-                          BoxDecoration(gradient: AppGradients.ambientGlow),
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.ambientGlow,
+                      ),
                     ),
                   ),
                   Column(
@@ -163,9 +164,7 @@ class _InsightCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.s12),
-              Expanded(
-                child: Text(title, style: theme.textTheme.titleSmall),
-              ),
+              Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
             ],
           ),
           const SizedBox(height: AppSpacing.s12),

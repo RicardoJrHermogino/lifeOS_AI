@@ -74,7 +74,7 @@ export default async function Home() {
 
 	return (
 		<>
-			<nav className="border-border bg-background sticky top-0 z-10 flex items-center justify-between border-b px-6 py-5 md:px-10">
+			<nav className="glass-nav sticky top-0 z-10 flex items-center justify-between px-6 py-5 md:px-10">
 				<Link href="/" className="flex items-center gap-2 text-base font-extrabold tracking-tight">
 					<span className="bg-primary inline-block size-2.5 rounded-full" aria-hidden />
 					LifeOS AI

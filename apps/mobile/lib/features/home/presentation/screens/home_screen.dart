@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/features/lifeos/presentation/screens/ask_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/capture_tab.dart';
@@ -18,20 +17,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final _tabController = PersistentTabController(initialIndex: 0);
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
-    final accentColor = AppColors.accent(brightness);
-
     final tabs = <_TabSpec>[
       const _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
       const _TabSpec(icon: Icons.timeline_rounded, label: 'Timeline'),
@@ -44,71 +35,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         gradient: AppGradients.surfaceGradient(brightness),
       ),
-      child: PersistentTabView(
-        tabs: [
-          PersistentTabConfig(
-            screen: const CaptureTab(),
-            item: ItemConfig(
-              icon: Icon(tabs[0].icon),
-              title: tabs[0].label,
-              activeForegroundColor: accentColor,
-              inactiveForegroundColor: AppColors.secondaryText(brightness),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: const [
+                CaptureTab(),
+                TimelineTab(),
+                AskTab(),
+                InsightsTab(),
+                LifeSettingsTab(),
+              ],
             ),
           ),
-          PersistentTabConfig(
-            screen: const TimelineTab(),
-            item: ItemConfig(
-              icon: Icon(tabs[1].icon),
-              title: tabs[1].label,
-              activeForegroundColor: accentColor,
-              inactiveForegroundColor: AppColors.secondaryText(brightness),
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const AskTab(),
-            item: ItemConfig(
-              icon: Icon(tabs[2].icon),
-              title: tabs[2].label,
-              activeForegroundColor: accentColor,
-              inactiveForegroundColor: AppColors.secondaryText(brightness),
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const InsightsTab(),
-            item: ItemConfig(
-              icon: Icon(tabs[3].icon),
-              title: tabs[3].label,
-              activeForegroundColor: accentColor,
-              inactiveForegroundColor: AppColors.secondaryText(brightness),
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const LifeSettingsTab(),
-            item: ItemConfig(
-              icon: Icon(tabs[4].icon),
-              title: tabs[4].label,
-              activeForegroundColor: accentColor,
-              inactiveForegroundColor: AppColors.secondaryText(brightness),
+          Positioned(
+            left: 14,
+            right: 14,
+            bottom: 12,
+            child: SizedBox(
+              height: 88,
+              child: _GlassTabBar(
+                selectedIndex: _selectedIndex,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                tabs: tabs,
+                brightness: brightness,
+              ),
             ),
           ),
         ],
-        navBarBuilder: (navBarConfig) => SizedBox(
-          height: 84,
-          child: _GlassTabBar(
-            navBarConfig: navBarConfig,
-            tabs: tabs,
-            brightness: brightness,
-          ),
-        ),
-        controller: _tabController,
-        backgroundColor: Colors.transparent,
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-        handleAndroidBackButtonPress: true,
-        stateManagement: true,
-        screenTransitionAnimation: const ScreenTransitionAnimation(
-          curve: Curves.ease,
-          duration: Duration(milliseconds: 200),
-        ),
       ),
     );
   }
@@ -122,100 +81,300 @@ class _TabSpec {
 
 class _GlassTabBar extends StatelessWidget {
   const _GlassTabBar({
-    required this.navBarConfig,
+    required this.selectedIndex,
+    required this.onItemSelected,
     required this.tabs,
     required this.brightness,
   });
 
-  final NavBarConfig navBarConfig;
+  final int selectedIndex;
+  final ValueChanged<int> onItemSelected;
   final List<_TabSpec> tabs;
   final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final activeColor = AppColors.accent(brightness);
-    final inactiveColor = AppColors.secondaryText(brightness);
+    final activeColor = brightness == Brightness.dark
+        ? AppColors.accent(brightness).withValues(alpha: 0.92)
+        : AppColors.accent(brightness);
+    final inactiveColor = brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.84)
+        : Colors.black.withValues(alpha: 0.86);
+    final glassBorder = Colors.white.withValues(
+      alpha: brightness == Brightness.dark ? 0.010 : 0.018,
+    );
+    final glassFill = Colors.white.withValues(
+      alpha: brightness == Brightness.dark ? 0.004 : 0.008,
+    );
+    final glassTop = Colors.white.withValues(
+      alpha: brightness == Brightness.dark ? 0.010 : 0.018,
+    );
+    final glassBottom = Colors.black.withValues(
+      alpha: brightness == Brightness.dark ? 0.008 : 0.002,
+    );
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: AppShadows.floating(brightness),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
           child: Container(
+            height: 68,
             decoration: BoxDecoration(
-              gradient: AppGradients.cardGradient(brightness),
-              border: Border.all(
-                color: AppColors.border(brightness),
-                width: 0.5,
-              ),
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(999),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: brightness == Brightness.dark ? 0.07 : 0.018,
+                  ),
+                  blurRadius: 18,
+                  spreadRadius: -14,
+                  offset: const Offset(0, 16),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: brightness == Brightness.dark ? 0.014 : 0.002,
+                  ),
+                  blurRadius: 4,
+                  spreadRadius: -5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(tabs.length, (index) {
-                final selected = navBarConfig.selectedIndex == index;
-                return Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => navBarConfig.onItemSelected(index),
-                    child: AnimatedContainer(
-                      duration: AppMotion.durationFast,
-                      curve: AppMotion.enterCurve,
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: selected
-                            ? AppColors.accentTint(brightness)
-                            : Colors.transparent,
-                        border: selected
-                            ? Border.all(
-                                color: activeColor.withValues(alpha: 0.18),
-                                width: 0.6,
-                              )
-                            : null,
-                      ),
-                      child: Center(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                tabs[index].icon,
-                                color: selected ? activeColor : inactiveColor,
-                                size: 21,
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                tabs[index].label,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: selected ? activeColor : inactiveColor,
-                                  fontSize: 10.5,
-                                  height: 1,
-                                  fontWeight: selected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                ),
-                              ),
-                            ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 46, sigmaY: 46),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [glassTop, glassFill, glassBottom],
+                      stops: const [0, 0.46, 1],
+                    ),
+                    border: Border.all(color: glassBorder, width: 0.4),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 6,
+                    ),
+                    child: Row(
+                      children: [
+                        for (final entry in _pillEntries(tabs))
+                          Expanded(
+                            child: _PillNavItem(
+                              icon: entry.tab.icon,
+                              label: entry.tab.label,
+                              selected: selectedIndex == entry.index,
+                              activeColor: activeColor,
+                              inactiveColor: inactiveColor,
+                              onTap: () => onItemSelected(entry.index),
+                            ),
                           ),
-                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 68,
+          height: 68,
+          child: _AskNavOrb(
+            brightness: brightness,
+            activeColor: activeColor,
+            selected: selectedIndex == 2,
+            onTap: () => onItemSelected(2),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<_PillEntry> _pillEntries(List<_TabSpec> tabs) {
+    return [
+      for (var index = 0; index < tabs.length; index++)
+        if (index != 2) _PillEntry(index: index, tab: tabs[index]),
+    ];
+  }
+}
+
+class _PillEntry {
+  const _PillEntry({required this.index, required this.tab});
+
+  final int index;
+  final _TabSpec tab;
+}
+
+class _AskNavOrb extends StatelessWidget {
+  const _AskNavOrb({
+    required this.brightness,
+    required this.activeColor,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Brightness brightness;
+  final Color activeColor;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = Colors.white.withValues(
+      alpha: brightness == Brightness.dark ? 0.010 : 0.018,
+    );
+    final iconColor = brightness == Brightness.dark
+        ? (selected
+              ? AppColors.accent(brightness).withValues(alpha: 0.92)
+              : Colors.white.withValues(alpha: 0.84))
+        : (selected
+              ? AppColors.accent(brightness)
+              : Colors.black.withValues(alpha: 0.86));
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: brightness == Brightness.dark ? 0.07 : 0.018,
+            ),
+            blurRadius: 18,
+            spreadRadius: -14,
+            offset: const Offset(0, 16),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: brightness == Brightness.dark ? 0.014 : 0.002,
+            ),
+            blurRadius: 4,
+            spreadRadius: -5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 46, sigmaY: 46),
+          child: Material(
+            color: Colors.transparent,
+            child: InkResponse(
+              containedInkWell: true,
+              customBorder: const CircleBorder(),
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: onTap,
+              child: AnimatedContainer(
+                duration: AppMotion.durationFast,
+                curve: AppMotion.enterCurve,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(
+                        alpha: brightness == Brightness.dark ? 0.010 : 0.018,
+                      ),
+                      Colors.white.withValues(
+                        alpha: brightness == Brightness.dark ? 0.004 : 0.008,
+                      ),
+                      Colors.black.withValues(
+                        alpha: brightness == Brightness.dark ? 0.008 : 0.002,
+                      ),
+                    ],
+                  ),
+                  border: Border.all(color: borderColor, width: 0.4),
+                ),
+                child: Center(
+                  child: AnimatedScale(
+                    duration: AppMotion.durationFast,
+                    curve: AppMotion.springCurve,
+                    scale: selected ? 1.08 : 1,
+                    child: Icon(
+                      Icons.search_rounded,
+                      semanticLabel: 'Ask',
+                      color: iconColor,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PillNavItem extends StatelessWidget {
+  const _PillNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final Color activeColor;
+  final Color inactiveColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final itemColor = selected ? activeColor : inactiveColor;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkResponse(
+        containedInkWell: false,
+        borderRadius: BorderRadius.circular(999),
+        radius: 32,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: onTap,
+        child: Center(
+          child: AnimatedOpacity(
+            duration: AppMotion.durationFast,
+            opacity: selected ? 1 : 0.78,
+            child: AnimatedScale(
+              duration: AppMotion.durationFast,
+              curve: AppMotion.springCurve,
+              scale: selected ? 1.04 : 1,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, semanticLabel: label, color: itemColor, size: 22),
+                  const SizedBox(height: 3),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: itemColor,
+                        fontSize: 10.5,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                        height: 1,
+                        letterSpacing: 0,
                       ),
                     ),
                   ),
-                );
-              }),
+                ],
+              ),
             ),
           ),
         ),
