@@ -101,7 +101,10 @@
       "Bash(pnpm test:e2e:web)",
       "Bash(node_modules/.bin/playwright test:*)",
       "Bash(pnpm exec *)",
-      "Read(//c/Users/thanbags/.traycer/yolo_artifacts/**)"
+      "Read(//c/Users/thanbags/.traycer/yolo_artifacts/**)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Remove-Item *)",
+      "Bash(pnpm dev *)"
     ]
   }
 }
