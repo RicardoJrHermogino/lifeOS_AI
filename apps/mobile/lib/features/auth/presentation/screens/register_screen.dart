@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/app_text_field.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
+import 'package:mobile/shared/widgets/app_text_field.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -60,7 +60,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         );
     } else if (authState.hasValue && authState.value != null) {
-      // Sign up succeeded – go_router redirect will handle navigation.
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -71,7 +70,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             backgroundColor: Colors.transparent,
             content: AwesomeSnackbarContent(
               title: 'Account Created!',
-              message: 'Welcome aboard — your account is ready.',
+              message: 'Welcome aboard. Your account is ready.',
               contentType: ContentType.success,
             ),
           ),
@@ -98,26 +97,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Icon(
+                    Icons.memory_rounded,
+                    size: 64,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(height: 24),
                   Text(
-                    'Join Turbo Template',
+                    'Create your LifeOS',
                     style: theme.textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface.withOpacity(0.9),
-                      letterSpacing: -0.5,
                       height: 1.1,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Create an account to get started',
+                    'Start a private memory system for your life',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                       height: 1.47,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 40),
                   AppTextField(
                     controller: _nameController,
                     textInputAction: TextInputAction.next,
@@ -194,8 +198,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscureConfirmPassword =
-                              !_obscureConfirmPassword;
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
                         });
                       },
                     ),

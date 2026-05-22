@@ -44,7 +44,7 @@ final class ThemeControllerProvider
   }
 }
 
-String _$themeControllerHash() => r'ff0a04376147d806175952d2fb6da5c1e31ae90d';
+String _$themeControllerHash() => r'monochrome_theme_controller_v2';
 
 /// Provider for the theme state with persistence.
 
@@ -73,7 +73,6 @@ abstract class _$ThemeController extends $Notifier<ThemeState> {
 const themeModeProvider = ThemeModeProvider._();
 
 /// Provider for the current theme mode.
-
 final class ThemeModeProvider
     extends $FunctionalProvider<ThemeMode, ThemeMode, ThemeMode>
     with $Provider<ThemeMode> {
@@ -111,65 +110,18 @@ final class ThemeModeProvider
   }
 }
 
-String _$themeModeHash() => r'6571dfbff64abe33db03bbd0c932480da33bd481';
+String _$themeModeHash() => r'monochrome_theme_mode_v2';
 
-/// Provider for the current color scheme.
-
-@ProviderFor(appColorScheme)
-const appColorSchemeProvider = AppColorSchemeProvider._();
-
-/// Provider for the current color scheme.
-
-final class AppColorSchemeProvider
-    extends $FunctionalProvider<AppColorScheme, AppColorScheme, AppColorScheme>
-    with $Provider<AppColorScheme> {
-  /// Provider for the current color scheme.
-  const AppColorSchemeProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'appColorSchemeProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$appColorSchemeHash();
-
-  @$internal
-  @override
-  $ProviderElement<AppColorScheme> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  AppColorScheme create(Ref ref) {
-    return appColorScheme(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AppColorScheme value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AppColorScheme>(value),
-    );
-  }
-}
-
-String _$appColorSchemeHash() => r'716c3d7b85f87bf830a072c0a6d7ad946c16fa2c';
-
-/// Provider for the light theme based on the current color scheme.
+/// Provider for the light theme.
 
 @ProviderFor(lightTheme)
 const lightThemeProvider = LightThemeProvider._();
 
-/// Provider for the light theme based on the current color scheme.
-
+/// Provider for the light theme.
 final class LightThemeProvider
     extends $FunctionalProvider<ThemeData, ThemeData, ThemeData>
     with $Provider<ThemeData> {
-  /// Provider for the light theme based on the current color scheme.
+  /// Provider for the light theme.
   const LightThemeProvider._()
     : super(
         from: null,
@@ -203,19 +155,18 @@ final class LightThemeProvider
   }
 }
 
-String _$lightThemeHash() => r'8e201569fa01678786775dee0dd8c6f491b451ac';
+String _$lightThemeHash() => r'monochrome_light_theme_v2';
 
-/// Provider for the dark theme based on the current color scheme.
+/// Provider for the dark theme.
 
 @ProviderFor(darkTheme)
 const darkThemeProvider = DarkThemeProvider._();
 
-/// Provider for the dark theme based on the current color scheme.
-
+/// Provider for the dark theme.
 final class DarkThemeProvider
     extends $FunctionalProvider<ThemeData, ThemeData, ThemeData>
     with $Provider<ThemeData> {
-  /// Provider for the dark theme based on the current color scheme.
+  /// Provider for the dark theme.
   const DarkThemeProvider._()
     : super(
         from: null,
@@ -249,7 +200,7 @@ final class DarkThemeProvider
   }
 }
 
-String _$darkThemeHash() => r'38745035d555ae7192c5a129612f8d08a1ff2be3';
+String _$darkThemeHash() => r'monochrome_dark_theme_v2';
 
 /// Provider that returns a display name for the current theme mode.
 
@@ -257,7 +208,6 @@ String _$darkThemeHash() => r'38745035d555ae7192c5a129612f8d08a1ff2be3';
 const themeModeDisplayNameProvider = ThemeModeDisplayNameProvider._();
 
 /// Provider that returns a display name for the current theme mode.
-
 final class ThemeModeDisplayNameProvider
     extends $FunctionalProvider<String, String, String>
     with $Provider<String> {
@@ -295,5 +245,4 @@ final class ThemeModeDisplayNameProvider
   }
 }
 
-String _$themeModeDisplayNameHash() =>
-    r'f18b6f607fec9af6106ae8296f392fb573d045fd';
+String _$themeModeDisplayNameHash() => r'monochrome_theme_mode_display_v2';

@@ -1,12 +1,16 @@
+import 'dart:ui';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/navigation/app_router.dart';
+import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:mobile/shared/widgets/app_text_field.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
+import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/app_text_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -42,7 +46,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (authState.hasError) {
       if (!context.mounted) return;
 
-      // Extract a user-friendly error message from the error.
       final error = authState.error;
       String message;
       if (error is DioException) {
@@ -50,7 +53,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (data is Map<String, dynamic> && data.containsKey('message')) {
           message = data['message'].toString();
         } else {
-          message = error.response?.statusMessage ?? error.message ?? 'Unknown network error';
+          message = error.response?.statusMessage ??
+              error.message ??
+              'Unknown network error';
         }
       } else {
         message = error.toString();
@@ -93,118 +98,167 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.isLoading;
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.rocket_launch_rounded,
-                    size: 64,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'Welcome Back',
-                    style: theme.textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface.withOpacity(0.9),
-                      letterSpacing: -0.5,
-                      height: 1.1,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to continue',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
-                      height: 1.47,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 48),
-                  AppTextField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.email],
-                    labelText: 'Email',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Email is required';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  AppTextField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    textInputAction: TextInputAction.done,
-                    autofillHints: const [AutofillHints.password],
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password is required';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                    onFieldSubmitted: (_) => _handleSignIn(),
-                  ),
-                  const SizedBox(height: 32),
-                  AppButton(
-                    onPressed: isLoading ? null : _handleSignIn,
-                    isLoading: isLoading,
-                    child: const Text('Sign In'),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account?",
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                      ),
-                      AppTextButton(
-                        onPressed: () => context.push(AppRoutes.register),
-                        child: const Text('Sign Up'),
-                      ),
-                    ],
-                  ),
-                ],
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppGradients.surfaceGradient(brightness),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -120,
+              left: -80,
+              right: -80,
+              height: 360,
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: AppGradients.ambientGlow),
               ),
             ),
-          ),
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s32,
+                    vertical: AppSpacing.s32,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(28),
+                            child: BackdropFilter(
+                              filter:
+                                  ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                              child: Container(
+                                width: 92,
+                                height: 92,
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      AppGradients.cardGradient(brightness),
+                                  border: Border.all(
+                                    color: AppColors.border(brightness),
+                                    width: 0.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(28),
+                                  boxShadow: AppShadows.floating(brightness),
+                                ),
+                                child: Icon(
+                                  Icons.memory_rounded,
+                                  size: 44,
+                                  color: AppColors.primary(brightness),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.s32),
+                        Text(
+                          'Welcome Back',
+                          style: theme.textTheme.headlineLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.s8),
+                        Text(
+                          'Sign in to continue building your life memory',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: AppColors.secondaryText(brightness),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.s32),
+                        AppCard(
+                          radius: AppRadii.cardLarge,
+                          padding: const EdgeInsets.all(AppSpacing.s24),
+                          child: Column(
+                            children: [
+                              AppTextField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.email],
+                                labelText: 'Email',
+                                prefixIcon: const Icon(Icons.email_outlined),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Email is required';
+                                  }
+                                  if (!value.contains('@')) {
+                                    return 'Enter a valid email';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: AppSpacing.s16),
+                              AppTextField(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                textInputAction: TextInputAction.done,
+                                autofillHints: const [AutofillHints.password],
+                                labelText: 'Password',
+                                prefixIcon: const Icon(Icons.lock_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Password is required';
+                                  }
+                                  if (value.length < 6) {
+                                    return 'Password must be at least 6 characters';
+                                  }
+                                  return null;
+                                },
+                                onFieldSubmitted: (_) => _handleSignIn(),
+                              ),
+                              const SizedBox(height: AppSpacing.s24),
+                              AppButton(
+                                onPressed: isLoading ? null : _handleSignIn,
+                                isLoading: isLoading,
+                                child: const Text('Sign In'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.s24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Don't have an account?",
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: AppColors.secondaryText(brightness),
+                              ),
+                            ),
+                            AppTextButton(
+                              onPressed: () => context.push(AppRoutes.register),
+                              child: const Text('Sign Up'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,11 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { useForm } from "@tanstack/react-form"
 
 import { Button, buttonVariants } from "@/core/components/ui/button"
-import { Card, CardContent } from "@/core/components/ui/card"
 import {
 	Field,
 	FieldDescription,
@@ -40,125 +38,126 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 	})
 
 	return (
-		<div className={cn("flex flex-col gap-6", className)} {...props}>
-			<Card className="overflow-hidden p-0">
-				<CardContent className="grid p-0 md:grid-cols-2">
-					<form
-						className="p-6 md:p-8"
-						onSubmit={e => {
-							e.preventDefault()
-							form.handleSubmit()
-						}}
-					>
-						<FieldGroup>
-							<div className="flex flex-col items-center gap-2 text-center">
-								<h1 className="text-2xl font-bold">Welcome back</h1>
-								<p className="text-muted-foreground text-balance">Login to your account</p>
+		<div
+			className={cn("mx-auto flex w-full max-w-md flex-col items-center gap-5", className)}
+			{...props}
+		>
+			<div className="border-border bg-card text-card-foreground shadow-primary/5 w-full rounded-[2rem] border p-10 shadow-xl">
+				<form
+					onSubmit={e => {
+						e.preventDefault()
+						form.handleSubmit()
+					}}
+				>
+					<FieldGroup className="gap-6">
+						<div className="flex flex-col items-center gap-1 text-center">
+							<h1 className="text-2xl font-extrabold tracking-tight">Welcome back</h1>
+							<p className="text-muted-foreground text-sm">Sign in to your LifeOS AI account</p>
+						</div>
+
+						{isError && (
+							<div className="bg-destructive/10 text-destructive rounded-2xl p-3 text-sm">
+								{error instanceof Error ? error.message : "An unexpected error occurred"}
 							</div>
+						)}
 
-							{isError && (
-								<div className="bg-destructive/10 text-destructive dark:bg-destructive/20 rounded-lg p-3 text-sm">
-									{error instanceof Error ? error.message : "An unexpected error occurred"}
-								</div>
-							)}
-
-							<form.Field
-								name="email"
-								children={field => {
-									const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor={field.name}>Email</FieldLabel>
-											<Input
-												id={field.name}
-												name={field.name}
-												type="email"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={e => field.handleChange(e.target.value)}
-												aria-invalid={isInvalid}
-												placeholder="m@example.com"
-												autoComplete="email"
-												required
-												disabled={isPending}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									)
-								}}
-							/>
-
-							<form.Field
-								name="password"
-								children={field => {
-									const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-									return (
-										<Field data-invalid={isInvalid}>
-											<div className="flex items-center">
-												<FieldLabel htmlFor={field.name}>Password</FieldLabel>
-												<Link
-													href="#"
-													className={cn(
-														buttonVariants({ size: "sm", variant: "link" }),
-														"text-card-foreground ml-auto h-auto"
-													)}
-												>
-													Forgot your password?
-												</Link>
-											</div>
-											<PasswordInput
-												id={field.name}
-												name={field.name}
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={e => field.handleChange(e.target.value)}
-												aria-invalid={isInvalid}
-												required
-												autoComplete="current-password"
-												disabled={isPending}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									)
-								}}
-							/>
-
-							<Field>
-								<Button type="submit" disabled={isPending} className="w-full hover:cursor-pointer">
-									{isPending ? "Signing in..." : "Login"}
-								</Button>
-							</Field>
-
-							<FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-								Or continue with
-							</FieldSeparator>
-
-							<SocialLoginButtons action="login" />
-
-							<FieldDescription className="text-center">
-								Don&apos;t have an account?{" "}
-								<Link
-									className={cn(
-										buttonVariants({ variant: "link" }),
-										"text-muted-foreground h-auto px-0"
-									)}
-									href="/register"
-								>
-									Sign up
-								</Link>
-							</FieldDescription>
-						</FieldGroup>
-					</form>
-					<div className="bg-muted relative hidden md:block">
-						<Image
-							src="/placeholder.svg"
-							alt="Image"
-							fill
-							className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+						<form.Field
+							name="email"
+							children={field => {
+								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name}>Email address</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											type="email"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={e => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="you@example.com"
+											autoComplete="email"
+											required
+											disabled={isPending}
+											data-element-id="login-email"
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								)
+							}}
 						/>
-					</div>
-				</CardContent>
-			</Card>
+
+						<form.Field
+							name="password"
+							children={field => {
+								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+								return (
+									<Field data-invalid={isInvalid}>
+										<div className="flex items-center">
+											<FieldLabel htmlFor={field.name}>Password</FieldLabel>
+											<Link
+												href="#"
+												className={cn(
+													buttonVariants({ size: "sm", variant: "link" }),
+													"text-primary ml-auto h-auto font-medium"
+												)}
+												data-element-id="forgot-password"
+											>
+												Forgot password?
+											</Link>
+										</div>
+										<PasswordInput
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={e => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											required
+											autoComplete="current-password"
+											disabled={isPending}
+											data-element-id="login-password"
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								)
+							}}
+						/>
+
+						<Field>
+							<Button
+								type="submit"
+								disabled={isPending}
+								className="h-12 w-full rounded-full text-sm font-bold hover:cursor-pointer"
+								data-element-id="login-submit"
+							>
+								{isPending ? "Signing in..." : "Sign in"}
+							</Button>
+						</Field>
+
+						<FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+							or continue with
+						</FieldSeparator>
+
+						<SocialLoginButtons action="login" />
+
+						<FieldDescription className="text-center">
+							Don&apos;t have an account?{" "}
+							<Link
+								className={cn(
+									buttonVariants({ variant: "link" }),
+									"text-primary h-auto px-0 font-semibold"
+								)}
+								href="/register"
+								data-element-id="go-to-register"
+							>
+								Create one
+							</Link>
+						</FieldDescription>
+					</FieldGroup>
+				</form>
+			</div>
 			<TermsPrivacyNote />
 		</div>
 	)

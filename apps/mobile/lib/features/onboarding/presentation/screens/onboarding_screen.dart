@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
@@ -17,30 +16,30 @@ class OnboardingScreen extends ConsumerWidget {
       pages: [
         _buildPage(
           theme: theme,
-          icon: CupertinoIcons.rocket_fill,
+          icon: Icons.memory_rounded,
           gradientColors: [colorScheme.primary, colorScheme.tertiary],
-          title: 'Welcome to Turbo',
+          title: 'Welcome to LifeOS AI',
           body:
-              'Your all-in-one productivity companion.\n'
-              'Manage tasks, stay organized, and get things done.',
+              'Capture life fragments through voice or text.\n'
+              'Turn them into structured personal memory.',
         ),
         _buildPage(
           theme: theme,
-          icon: CupertinoIcons.checkmark_seal_fill,
+          icon: Icons.graphic_eq_rounded,
           gradientColors: [colorScheme.tertiary, colorScheme.secondary],
-          title: 'Stay Organized',
+          title: 'Remember Naturally',
           body:
-              'Create, track, and complete todos across\n'
-              'all your devices — seamlessly synced.',
+              'Speak freely, review what AI understood,\n'
+              'and keep your memory accurate.',
         ),
         _buildPage(
           theme: theme,
-          icon: CupertinoIcons.person_2_fill,
+          icon: Icons.privacy_tip_rounded,
           gradientColors: [colorScheme.secondary, colorScheme.primary],
-          title: 'Secure & Personal',
+          title: 'Private by Design',
           body:
-              'Sign in to keep your data safe and access\n'
-              'it anywhere, anytime.',
+              'You control what is remembered,\n'
+              'edited, exported, or deleted.',
         ),
       ],
       showSkipButton: true,
@@ -49,7 +48,6 @@ class OnboardingScreen extends ConsumerWidget {
         style: TextStyle(
           color: colorScheme.onSurface.withOpacity(0.6),
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
         ),
       ),
       next: Container(
@@ -59,7 +57,7 @@ class OnboardingScreen extends ConsumerWidget {
           shape: BoxShape.circle,
         ),
         child: Icon(
-          CupertinoIcons.arrow_right,
+          Icons.arrow_forward_rounded,
           color: colorScheme.onPrimaryContainer,
           size: 20,
         ),
@@ -75,7 +73,6 @@ class OnboardingScreen extends ConsumerWidget {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -114,14 +111,13 @@ class OnboardingScreen extends ConsumerWidget {
   }) {
     return PageViewModel(
       titleWidget: Padding(
-        padding: const EdgeInsets.only(top: 48), // Generous spacing
+        padding: const EdgeInsets.only(top: 48),
         child: Text(
           title,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineLarge!.copyWith(
-            fontWeight: FontWeight.w600, // Semibold Apple style
+            fontWeight: FontWeight.w600,
             color: theme.colorScheme.onSurface.withOpacity(0.9),
-            letterSpacing: -0.5,
             height: 1.1,
           ),
         ),
@@ -178,10 +174,10 @@ class OnboardingScreen extends ConsumerWidget {
           ],
         ),
       ),
-      decoration: PageDecoration(
+      decoration: const PageDecoration(
         imagePadding: EdgeInsets.zero,
-        bodyPadding: const EdgeInsets.symmetric(horizontal: 8),
-        titlePadding: const EdgeInsets.only(bottom: 0),
+        bodyPadding: EdgeInsets.symmetric(horizontal: 8),
+        titlePadding: EdgeInsets.only(bottom: 0),
         bodyAlignment: Alignment.center,
         imageAlignment: Alignment.center,
       ),

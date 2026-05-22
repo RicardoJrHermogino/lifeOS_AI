@@ -23,8 +23,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-	title: "Turbo Template",
-	description: "Turborepo monorepo template with Next.js, NestJS, and Flutter",
+	title: "LifeOS AI",
+	description:
+		"LifeOS AI — your private second mind. Capture, structure, and reflect on your life with AI-powered personal memory.",
 }
 
 export default function RootLayout({

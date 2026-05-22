@@ -1,6 +1,6 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
 
+import { SiteSidebar } from "@/features/lifeos/components/site-sidebar"
 import { getSession } from "@/services/better-auth/auth-server"
 
 export default async function SiteLayout({
@@ -15,26 +15,12 @@ export default async function SiteLayout({
 	}
 
 	return (
-		<div className="container py-8">
-			<div className="grid min-h-[calc(100vh-6rem)] grid-cols-1 gap-6 md:grid-cols-[240px_1fr]">
-				<aside className="bg-card text-card-foreground hidden rounded-xl border p-4 md:block">
-					<nav className="space-y-1">
-						<Link
-							href="/dashboard"
-							className="hover:bg-accent hover:text-accent-foreground block rounded-md px-3 py-2 text-sm font-medium"
-						>
-							Dashboard
-						</Link>
-						<Link
-							href="/submit-ticket"
-							className="hover:bg-accent hover:text-accent-foreground block rounded-md px-3 py-2 text-sm font-medium"
-						>
-							Submit Ticket
-						</Link>
-					</nav>
-				</aside>
-				<main className="min-w-0">{children}</main>
-			</div>
+		<div className="bg-background text-foreground grid min-h-screen grid-cols-1 md:grid-cols-[240px_1fr]">
+			<SiteSidebar
+				userName={session.user.name || "You"}
+				userEmail={session.user.email || ""}
+			/>
+			<main className="min-w-0 overflow-y-auto">{children}</main>
 		</div>
 	)
 }

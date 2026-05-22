@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_styles.dart';
 
@@ -6,6 +8,8 @@ class AppCard extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry margin;
+  final bool elevated;
+  final double? radius;
 
   const AppCard({
     super.key,
@@ -13,6 +17,8 @@ class AppCard extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     this.onTap,
     this.margin = EdgeInsets.zero,
+    this.elevated = true,
+    this.radius,
   });
 
   @override
@@ -37,26 +43,50 @@ class _AppCardState extends State<AppCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final isTappable = widget.onTap != null;
+    final borderRadius = widget.radius != null
+        ? BorderRadius.circular(widget.radius!)
+        : AppRadii.cardRadius;
+
+    final innerDecoration = BoxDecoration(
+      gradient: AppGradients.cardGradient(brightness),
+      border: Border.all(color: AppColors.border(brightness), width: 0.5),
+      borderRadius: borderRadius,
+    );
+
+    Widget inner = Container(
+      decoration: innerDecoration,
+      child: Padding(padding: widget.padding, child: widget.child),
+    );
+
+    if (widget.elevated) {
+      inner = ClipRRect(
+        borderRadius: borderRadius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: inner,
+        ),
+      );
+    } else {
+      inner = ClipRRect(borderRadius: borderRadius, child: inner);
+    }
 
     Widget content = AnimatedContainer(
       duration: AppMotion.durationFast,
       curve: AppMotion.enterCurve,
       margin: widget.margin,
+      transform: _isPressed
+          ? (Matrix4.identity()..scale(0.98))
+          : Matrix4.identity(),
+      transformAlignment: Alignment.center,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: AppRadii.mediumRadius,
-        boxShadow: _isPressed 
-            ? [] 
-            : [AppShadows.subtle(theme.colorScheme)], // Diffused shadow
+        borderRadius: borderRadius,
+        boxShadow: widget.elevated && !_isPressed
+            ? AppShadows.card(brightness)
+            : null,
       ),
-      child: ClipRRect(
-        borderRadius: AppRadii.mediumRadius,
-        child: Padding(
-          padding: widget.padding,
-          child: widget.child,
-        ),
-      ),
+      child: inner,
     );
 
     if (isTappable) {
@@ -65,6 +95,7 @@ class _AppCardState extends State<AppCard> {
         onTapUp: _handleTapUp,
         onTapCancel: _handleTapCancel,
         onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
         child: content,
       );
     }

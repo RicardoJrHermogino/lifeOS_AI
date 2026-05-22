@@ -1,16 +1,14 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:showcaseview/showcaseview.dart';
-import 'package:mobile/core/navigation/navigation_provider.dart';
-import 'package:mobile/core/widgets/tour_item.dart';
-import 'package:mobile/features/home/presentation/providers/tour_provider.dart';
-import 'package:mobile/features/home/presentation/widgets/dashboard_tab.dart';
-import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
-import 'package:mobile/features/todos/presentation/screens/todos_screen.dart';
-import 'package:mobile/features/home/presentation/widgets/settings_tab.dart';
-import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:mobile/services/storage/tour_storage_service.dart';
+import 'package:mobile/core/theme/app_styles.dart';
+import 'package:mobile/features/lifeos/presentation/screens/ask_tab.dart';
+import 'package:mobile/features/lifeos/presentation/screens/capture_tab.dart';
+import 'package:mobile/features/lifeos/presentation/screens/insights_tab.dart';
+import 'package:mobile/features/lifeos/presentation/screens/life_settings_tab.dart';
+import 'package:mobile/features/lifeos/presentation/screens/timeline_tab.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,12 +18,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _checkedFirstRun = false;
-  final _showcaseKey = GlobalKey<ShowCaseWidgetState>();
   final _tabController = PersistentTabController(initialIndex: 0);
-
-  /// Number of tabs in the bottom nav. Keep in sync with [_buildBody].
-  static const _tabCount = 4;
 
   @override
   void dispose() {
@@ -33,140 +26,199 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  /// Cycle through every tab so that each tab's [TourItem] widgets mount
-  /// and register with [TourRegistry], then return to tab 0 and start
-  /// the showcase.  Each jump is separated by a frame so the widget tree
-  /// has time to build.
-  Future<void> _ensureAllTabsMountedThenStart() async {
-    for (var i = 0; i < _tabCount; i++) {
-      _tabController.jumpToTab(i);
-      // Wait one frame so the tab's widget tree builds.
-      await Future<void>.delayed(Duration.zero);
-      await WidgetsBinding.instance.endOfFrame;
-    }
-    // Return to first tab before the tour begins.
-    _tabController.jumpToTab(0);
-    ref.read(navigationControllerProvider.notifier).setTab(0);
-    await WidgetsBinding.instance.endOfFrame;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+    final accentColor = AppColors.accent(brightness);
 
-    _showcaseKey.currentState
-        ?.startShowCase(TourRegistry.instance.orderedKeys);
+    final tabs = <_TabSpec>[
+      const _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
+      const _TabSpec(icon: Icons.timeline_rounded, label: 'Timeline'),
+      const _TabSpec(icon: Icons.search_rounded, label: 'Ask'),
+      const _TabSpec(icon: Icons.auto_awesome_rounded, label: 'Insights'),
+      const _TabSpec(icon: Icons.shield_outlined, label: 'Privacy'),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppGradients.surfaceGradient(brightness),
+      ),
+      child: PersistentTabView(
+        tabs: [
+          PersistentTabConfig(
+            screen: const CaptureTab(),
+            item: ItemConfig(
+              icon: Icon(tabs[0].icon),
+              title: tabs[0].label,
+              activeForegroundColor: accentColor,
+              inactiveForegroundColor: AppColors.secondaryText(brightness),
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const TimelineTab(),
+            item: ItemConfig(
+              icon: Icon(tabs[1].icon),
+              title: tabs[1].label,
+              activeForegroundColor: accentColor,
+              inactiveForegroundColor: AppColors.secondaryText(brightness),
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const AskTab(),
+            item: ItemConfig(
+              icon: Icon(tabs[2].icon),
+              title: tabs[2].label,
+              activeForegroundColor: accentColor,
+              inactiveForegroundColor: AppColors.secondaryText(brightness),
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const InsightsTab(),
+            item: ItemConfig(
+              icon: Icon(tabs[3].icon),
+              title: tabs[3].label,
+              activeForegroundColor: accentColor,
+              inactiveForegroundColor: AppColors.secondaryText(brightness),
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const LifeSettingsTab(),
+            item: ItemConfig(
+              icon: Icon(tabs[4].icon),
+              title: tabs[4].label,
+              activeForegroundColor: accentColor,
+              inactiveForegroundColor: AppColors.secondaryText(brightness),
+            ),
+          ),
+        ],
+        navBarBuilder: (navBarConfig) => SizedBox(
+          height: 84,
+          child: _GlassTabBar(
+            navBarConfig: navBarConfig,
+            tabs: tabs,
+            brightness: brightness,
+          ),
+        ),
+        controller: _tabController,
+        backgroundColor: Colors.transparent,
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        handleAndroidBackButtonPress: true,
+        stateManagement: true,
+        screenTransitionAnimation: const ScreenTransitionAnimation(
+          curve: Curves.ease,
+          duration: Duration(milliseconds: 200),
+        ),
+      ),
+    );
   }
+}
+
+class _TabSpec {
+  const _TabSpec({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+}
+
+class _GlassTabBar extends StatelessWidget {
+  const _GlassTabBar({
+    required this.navBarConfig,
+    required this.tabs,
+    required this.brightness,
+  });
+
+  final NavBarConfig navBarConfig;
+  final List<_TabSpec> tabs;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
-    // Listen for "Take a Tour" trigger from settings.
-    ref.listen(tourTriggerProvider, (prev, next) {
-      if (next) {
-        ref.read(tourTriggerProvider.notifier).reset();
-        _ensureAllTabsMountedThenStart();
-      }
-    });
-
-    return ShowCaseWidget(
-      key: _showcaseKey,
-      onStart: (index, key) {
-        // Auto-navigate to the tab that owns the next showcase target.
-        final tabIndex = TourRegistry.instance.tabForKey(key);
-        if (tabIndex != null && _tabController.index != tabIndex) {
-          _tabController.jumpToTab(tabIndex);
-          ref.read(navigationControllerProvider.notifier).setTab(tabIndex);
-        }
-      },
-      onFinish: () {
-        final userId = ref.read(currentUserProvider)?.id;
-        if (userId != null) {
-          ref.read(tourStorageServiceProvider).completeTour(userId);
-        }
-      },
-      builder: (showcaseContext) => _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
     final theme = Theme.of(context);
+    final activeColor = AppColors.accent(brightness);
+    final inactiveColor = AppColors.secondaryText(brightness);
 
-    // Auto-start the tour for first-time users, once.
-    if (!_checkedFirstRun) {
-      _checkedFirstRun = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final userId = ref.read(currentUserProvider)?.id;
-        if (userId == null) return;
-        final hasCompleted =
-            ref.read(tourStorageServiceProvider).hasCompletedTour(userId);
-        if (!hasCompleted) {
-          _ensureAllTabsMountedThenStart();
-        }
-      });
-    }
-
-    return PersistentTabView(
-      tabs: [
-        PersistentTabConfig(
-          screen: const DashboardTab(),
-          item: ItemConfig(
-            icon: const Icon(Icons.home_outlined),
-            title: 'Home',
-            activeForegroundColor: theme.colorScheme.primary,
-            inactiveForegroundColor: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        PersistentTabConfig(
-          screen: const TodosScreen(),
-          item: ItemConfig(
-            icon: const Icon(Icons.checklist_outlined),
-            title: 'Todos',
-            activeForegroundColor: theme.colorScheme.primary,
-            inactiveForegroundColor: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        PersistentTabConfig(
-          screen: const ProfileScreen(),
-          item: ItemConfig(
-            icon: const Icon(Icons.person_outlined),
-            title: 'Profile',
-            activeForegroundColor: theme.colorScheme.primary,
-            inactiveForegroundColor: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        PersistentTabConfig(
-          screen: const SettingsTab(),
-          item: ItemConfig(
-            icon: const Icon(Icons.settings_outlined),
-            title: 'Settings',
-            activeForegroundColor: theme.colorScheme.primary,
-            inactiveForegroundColor: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-      navBarBuilder: (navBarConfig) => TourItem(
-        tabIndex: null,
-        order: 999,
-        title: 'Navigation',
-        description: 'Switch between Home, Todos, and Settings tabs',
-        child: Style1BottomNavBar(
-          navBarConfig: navBarConfig,
-          navBarDecoration: NavBarDecoration(
-            color: theme.colorScheme.surface,
-            border: Border(
-              top: BorderSide(
-                color: theme.colorScheme.outlineVariant,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: AppShadows.floating(brightness),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: AppGradients.cardGradient(brightness),
+              border: Border.all(
+                color: AppColors.border(brightness),
                 width: 0.5,
               ),
+              borderRadius: BorderRadius.circular(32),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(tabs.length, (index) {
+                final selected = navBarConfig.selectedIndex == index;
+                return Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => navBarConfig.onItemSelected(index),
+                    child: AnimatedContainer(
+                      duration: AppMotion.durationFast,
+                      curve: AppMotion.enterCurve,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: selected
+                            ? AppColors.accentTint(brightness)
+                            : Colors.transparent,
+                        border: selected
+                            ? Border.all(
+                                color: activeColor.withValues(alpha: 0.18),
+                                width: 0.6,
+                              )
+                            : null,
+                      ),
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                tabs[index].icon,
+                                color: selected ? activeColor : inactiveColor,
+                                size: 21,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                tabs[index].label,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: selected ? activeColor : inactiveColor,
+                                  fontSize: 10.5,
+                                  height: 1,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
         ),
-      ),
-      controller: _tabController,
-      onTabChanged: (index) {
-        ref.read(navigationControllerProvider.notifier).setTab(index);
-      },
-      backgroundColor: theme.colorScheme.surface,
-      handleAndroidBackButtonPress: true,
-      stateManagement: true,
-      screenTransitionAnimation: const ScreenTransitionAnimation(
-        curve: Curves.ease,
-        duration: Duration(milliseconds: 200),
       ),
     );
   }

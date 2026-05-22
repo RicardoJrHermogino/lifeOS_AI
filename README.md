@@ -25,6 +25,9 @@ cp apps/web/.env.example apps/web/.env
 cp packages/db/.env.example packages/db/.env
 cp apps/mobile/.env.example apps/mobile/.env
 
+# Start local PostgreSQL
+docker compose up -d db
+
 # Push database schema
 pnpm db:push
 
@@ -185,7 +188,8 @@ Production uses AWS ACM certificates via the ALB — no manual SSL needed.
 ### Docker (Local)
 
 ```bash
-docker-compose up -d    # Start web + backend locally
+docker compose up -d db # Start only PostgreSQL for local pnpm dev/db commands
+docker compose up -d    # Start PostgreSQL + web + backend locally
 ```
 
 ### Troubleshooting
