@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
+import 'package:mobile/features/lifeos/data/exports_repository.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
 
 class LifeSettingsTab extends ConsumerWidget {
@@ -86,16 +87,18 @@ class LifeSettingsTab extends ConsumerWidget {
                   subtitle: 'Review what AI extracted before it becomes memory',
                   trailing: Switch(value: true, onChanged: (_) {}),
                 ),
-                const _SettingsTile(
+                _SettingsTile(
                   icon: Icons.download_outlined,
                   title: 'Export life data',
                   subtitle: 'Prepare memories, transcripts, and insights',
+                  onTap: () => _requestExport(context, ref),
                 ),
-                const _SettingsTile(
+                _SettingsTile(
                   icon: Icons.delete_outline_rounded,
-                  title: 'Delete memories',
-                  subtitle: 'Remove individual memories or all account data',
+                  title: 'Delete account',
+                  subtitle: 'Remove all memories, captures, and reflections',
                   isDestructive: true,
+                  onTap: () => _confirmDeleteAccount(context, ref),
                 ),
               ],
             ),
@@ -221,6 +224,7 @@ class _SettingsTile extends StatelessWidget {
     required this.subtitle,
     this.trailing,
     this.isDestructive = false,
+    this.onTap,
   });
 
   final IconData icon;
@@ -228,6 +232,7 @@ class _SettingsTile extends StatelessWidget {
   final String subtitle;
   final Widget? trailing;
   final bool isDestructive;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +243,7 @@ class _SettingsTile extends StatelessWidget {
         : AppColors.accent(brightness);
 
     return ListTile(
+      onTap: onTap,
       leading: Icon(icon, color: color),
       title: Text(
         title,
@@ -259,6 +265,53 @@ class _SettingsTile extends StatelessWidget {
             color: AppColors.secondaryText(brightness),
           ),
     );
+  }
+}
+
+Future<void> _requestExport(BuildContext context, WidgetRef ref) async {
+  final repo = ref.read(exportsRepositoryProvider);
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    final exp = await repo.request();
+    messenger.showSnackBar(
+      SnackBar(content: Text('Export queued (id: ${exp.id})')),
+    );
+  } catch (e) {
+    messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+  }
+}
+
+Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Delete account?'),
+      content: const Text(
+        'This permanently removes your account and all memories. This cannot be undone.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  final repo = ref.read(exportsRepositoryProvider);
+  try {
+    await repo.deleteAccount();
+    await ref.read(authStateProvider.notifier).signOut();
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+    }
   }
 }
 

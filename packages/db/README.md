@@ -31,6 +31,25 @@ const user = await db.query.users.findFirst({ where: eq(users.id, "123") })
 | -------------- | ---------------------------- |
 | `DATABASE_URL` | PostgreSQL connection string |
 
+## pgvector Extension
+
+The `memories.embedding` column uses the pgvector extension. Before pushing the
+schema or writing embeddings, run this once per database (local, staging,
+production):
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+The extension must be installed by a Postgres superuser. The `docker-compose.yml`
+uses the `pgvector/pgvector:pg17` image and mounts `packages/db/init`, so new
+local databases create the extension automatically. Existing local volumes still
+need the `CREATE EXTENSION` statement to be run once after the image is updated.
+
+If you use a local Postgres distribution instead of Docker, such as DBngin, make
+sure that distribution has the pgvector extension installed. A plain Postgres
+install will fail with `extension "vector" is not available`.
+
 ## Scripts
 
 | Command            | Description             |

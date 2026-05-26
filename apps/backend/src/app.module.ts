@@ -9,6 +9,8 @@ import { getAuth } from "@repo/auth"
 import { HttpExceptionFilter } from "@/common/filters/http-exception.filter"
 import { V1Module } from "@/modules/v1/v1.module"
 
+import { AiModule } from "./common/ai/ai.module"
+import { JobsModule } from "./common/jobs/jobs.module"
 import { ORPCCommonModule } from "./common/orpc/orpc.module"
 import { env } from "./config/env.config"
 
@@ -24,6 +26,9 @@ import { env } from "./config/env.config"
 		AuthModule.forRoot({ auth: getAuth(), disableControllers: true }),
 		// oRPC setup
 		ORPCCommonModule,
+		// Shared infrastructure
+		AiModule,
+		JobsModule,
 		// Versioned modules
 		V1Module,
 	],

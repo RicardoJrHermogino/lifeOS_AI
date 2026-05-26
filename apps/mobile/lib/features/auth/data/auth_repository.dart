@@ -28,8 +28,10 @@ class AuthRepository {
     if (data is String && data.isNotEmpty) {
       // Dio didn't auto-decode — shouldn't happen with default settings
       // but guard against it.
-      developer.log('Auth response was a String, not decoded JSON: $data',
-          name: 'AuthRepository');
+      developer.log(
+        'Auth response was a String, not decoded JSON: $data',
+        name: 'AuthRepository',
+      );
     }
     return null;
   }

@@ -9,17 +9,16 @@ class SettingsGroup extends StatelessWidget {
   const SettingsGroup({
     super.key,
     required this.children,
-    this.margin =
-        const EdgeInsets.symmetric(horizontal: AppSpacing.s16, vertical: 8),
+    this.margin = const EdgeInsets.symmetric(
+      horizontal: AppSpacing.s16,
+      vertical: 8,
+    ),
   });
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final divider = Container(
-      height: 0.5,
-      color: AppColors.border(brightness),
-    );
+    final divider = Container(height: 0.5, color: AppColors.border(brightness));
 
     final groupedChildren = <Widget>[];
     for (int i = 0; i < children.length; i++) {

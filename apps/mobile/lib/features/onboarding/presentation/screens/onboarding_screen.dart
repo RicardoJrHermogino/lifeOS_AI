@@ -46,7 +46,7 @@ class OnboardingScreen extends ConsumerWidget {
       skip: Text(
         'Skip',
         style: TextStyle(
-          color: colorScheme.onSurface.withOpacity(0.6),
+          color: colorScheme.onSurface.withValues(alpha: 0.6),
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -70,10 +70,7 @@ class OnboardingScreen extends ConsumerWidget {
         ),
         child: const Text(
           'Start',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
       onDone: () {
@@ -86,13 +83,11 @@ class OnboardingScreen extends ConsumerWidget {
         size: const Size.square(8.0),
         activeSize: const Size(24.0, 8.0),
         activeColor: colorScheme.primary,
-        color: colorScheme.outlineVariant.withOpacity(0.5),
+        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         activeShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         spacing: const EdgeInsets.symmetric(horizontal: 4),
       ),
       isProgressTap: false,
@@ -117,7 +112,7 @@ class OnboardingScreen extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineLarge!.copyWith(
             fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface.withOpacity(0.9),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
             height: 1.1,
           ),
         ),
@@ -128,7 +123,7 @@ class OnboardingScreen extends ConsumerWidget {
           body,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyLarge!.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             height: 1.47,
           ),
         ),
@@ -137,12 +132,14 @@ class OnboardingScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 64),
+            const SizedBox(height: 40),
             Container(
               width: 180,
               height: 180,
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHigh.withValues(
+                  alpha: 0.5,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Center(

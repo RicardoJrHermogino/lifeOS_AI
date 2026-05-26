@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/app_styles.dart';
+import 'package:mobile/features/lifeos/presentation/screens/memory_review_screen.dart';
+import 'package:mobile/features/lifeos/presentation/screens/text_capture_screen.dart';
+import 'package:mobile/features/lifeos/presentation/screens/voice_capture_screen.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
 
 class CaptureTab extends StatelessWidget {
   const CaptureTab({super.key});
+
+  void _openVoice(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const VoiceCaptureScreen()));
+  }
+
+  void _openText(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const TextCaptureScreen()));
+  }
+
+  void _openReview(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const MemoryReviewScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +41,8 @@ class CaptureTab extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Processing queue',
-            onPressed: () {},
+            tooltip: 'Review queue',
+            onPressed: () => _openReview(context),
             icon: const Icon(Icons.sync_rounded),
           ),
         ],
@@ -67,7 +88,7 @@ class CaptureTab extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.s24),
                   AppButton(
-                    onPressed: () {},
+                    onPressed: () => _openVoice(context),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
@@ -80,7 +101,7 @@ class CaptureTab extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.s12),
                   AppButton(
-                    onPressed: () {},
+                    onPressed: () => _openText(context),
                     isSecondary: true,
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,

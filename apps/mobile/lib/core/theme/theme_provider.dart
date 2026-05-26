@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/flex_theme_config.dart';
 import 'package:mobile/services/storage/theme_storage_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,9 +11,8 @@ class ThemeState {
 
   final ThemeMode themeMode;
 
-  factory ThemeState.defaults() => const ThemeState(
-        themeMode: FlexThemeConfig.defaultThemeMode,
-      );
+  factory ThemeState.defaults() =>
+      const ThemeState(themeMode: FlexThemeConfig.defaultThemeMode);
 
   ThemeState copyWith({ThemeMode? themeMode}) {
     return ThemeState(themeMode: themeMode ?? this.themeMode);

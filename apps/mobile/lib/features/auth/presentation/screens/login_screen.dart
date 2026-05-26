@@ -35,7 +35,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleSignIn() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(authStateProvider.notifier).signIn(
+    await ref
+        .read(authStateProvider.notifier)
+        .signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -53,7 +55,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (data is Map<String, dynamic> && data.containsKey('message')) {
           message = data['message'].toString();
         } else {
-          message = error.response?.statusMessage ??
+          message =
+              error.response?.statusMessage ??
               error.message ??
               'Unknown network error';
         }
@@ -135,14 +138,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(28),
                             child: BackdropFilter(
-                              filter:
-                                  ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                               child: Container(
                                 width: 92,
                                 height: 92,
                                 decoration: BoxDecoration(
-                                  gradient:
-                                      AppGradients.cardGradient(brightness),
+                                  gradient: AppGradients.cardGradient(
+                                    brightness,
+                                  ),
                                   border: Border.all(
                                     color: AppColors.border(brightness),
                                     width: 0.5,

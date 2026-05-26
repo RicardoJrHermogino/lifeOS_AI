@@ -77,7 +77,7 @@ class _AppCardState extends State<AppCard> {
       curve: AppMotion.enterCurve,
       margin: widget.margin,
       transform: _isPressed
-          ? (Matrix4.identity()..scale(0.98))
+          ? Matrix4.diagonal3Values(0.98, 0.98, 1)
           : Matrix4.identity(),
       transformAlignment: Alignment.center,
       decoration: BoxDecoration(
