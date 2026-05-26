@@ -1,7 +1,30 @@
 import { defineRelations } from "drizzle-orm"
-import { index, primaryKey } from "drizzle-orm/pg-core"
+import { customType, index, primaryKey } from "drizzle-orm/pg-core"
 
 import { createTable } from "./utils/table.js"
+
+// ============================================================================
+// CUSTOM TYPES
+// ============================================================================
+
+/**
+ * pgvector column type for semantic embeddings.
+ * Requires the pgvector extension: CREATE EXTENSION IF NOT EXISTS vector;
+ */
+const vector = customType<{ data: number[]; driverData: string; config: { dimensions: number } }>({
+	dataType(config) {
+		return `vector(${config?.dimensions ?? 1536})`
+	},
+	toDriver(value: number[]): string {
+		return `[${value.join(",")}]`
+	},
+	fromDriver(value: string): number[] {
+		return value
+			.slice(1, -1)
+			.split(",")
+			.map(v => Number(v))
+	},
+})
 
 // ============================================================================
 // BETTER AUTH TABLES
@@ -116,38 +139,214 @@ export const tickets = createTable("tickets", t => ({
 }))
 
 // ============================================================================
+// LIFEOS — RAW CAPTURES
+// ============================================================================
+
+export const rawCaptures = createTable(
+	"raw_captures",
+	t => ({
+		id: t.uuid("id").primaryKey().defaultRandom(),
+		userId: t
+			.text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		type: t.text("type").notNull().$type<"voice" | "text">(),
+		body: t.text("body"),
+		audioUrl: t.text("audio_url"),
+		transcript: t.text("transcript"),
+		transcriptCorrected: t.boolean("transcript_corrected").notNull().default(false),
+		mood: t.text("mood"),
+		status: t
+			.text("status")
+			.notNull()
+			.default("pending")
+			.$type<"pending" | "transcribing" | "extracting" | "done" | "failed">(),
+		syncId: t.text("sync_id"),
+		capturedAt: t.timestamp("captured_at").notNull().defaultNow(),
+		createdAt: t.timestamp("created_at").notNull().defaultNow(),
+		updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+	}),
+	t => [
+		index("raw_captures_user_id_idx").on(t.userId),
+		index("raw_captures_status_idx").on(t.status),
+		index("raw_captures_sync_id_idx").on(t.syncId),
+	]
+)
+
+// ============================================================================
+// LIFEOS — MEMORIES
+// ============================================================================
+
+export const memories = createTable(
+	"memories",
+	t => ({
+		id: t.uuid("id").primaryKey().defaultRandom(),
+		userId: t
+			.text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		rawCaptureId: t.uuid("raw_capture_id").references(() => rawCaptures.id, {
+			onDelete: "set null",
+		}),
+		title: t.text("title").notNull(),
+		summary: t.text("summary").notNull(),
+		eventDate: t.timestamp("event_date").notNull(),
+		emotions: t.jsonb("emotions").$type<string[]>().notNull().default([]),
+		people: t.jsonb("people").$type<string[]>().notNull().default([]),
+		places: t.jsonb("places").$type<string[]>().notNull().default([]),
+		topics: t.jsonb("topics").$type<string[]>().notNull().default([]),
+		goals: t.jsonb("goals").$type<string[]>().notNull().default([]),
+		decisions: t.jsonb("decisions").$type<string[]>().notNull().default([]),
+		actions: t.jsonb("actions").$type<string[]>().notNull().default([]),
+		sensitivity: t.text("sensitivity"),
+		confidence: t.jsonb("confidence").$type<Record<string, number>>().notNull().default({}),
+		status: t
+			.text("status")
+			.notNull()
+			.default("candidate")
+			.$type<"candidate" | "saved" | "archived" | "deleted">(),
+		isUserCorrected: t.boolean("is_user_corrected").notNull().default(false),
+		embedding: vector("embedding", { dimensions: 1536 }),
+		createdAt: t.timestamp("created_at").notNull().defaultNow(),
+		updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+	}),
+	t => [
+		index("memories_user_id_idx").on(t.userId),
+		index("memories_status_idx").on(t.status),
+		index("memories_event_date_idx").on(t.eventDate),
+		index("memories_raw_capture_id_idx").on(t.rawCaptureId),
+	]
+)
+
+// ============================================================================
+// LIFEOS — REFLECTIONS
+// ============================================================================
+
+export const reflections = createTable(
+	"reflections",
+	t => ({
+		id: t.uuid("id").primaryKey().defaultRandom(),
+		userId: t
+			.text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		date: t.date("date").notNull(),
+		content: t.text("content").notNull(),
+		sourceMemoryIds: t.jsonb("source_memory_ids").$type<string[]>().notNull().default([]),
+		isUserEdited: t.boolean("is_user_edited").notNull().default(false),
+		feedback: t.text("feedback").$type<"helpful" | "inaccurate" | null>(),
+		createdAt: t.timestamp("created_at").notNull().defaultNow(),
+		updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+	}),
+	t => [
+		index("reflections_user_id_idx").on(t.userId),
+		index("reflections_user_date_idx").on(t.userId, t.date),
+	]
+)
+
+// ============================================================================
+// LIFEOS — DATA EXPORTS
+// ============================================================================
+
+export const dataExports = createTable(
+	"data_exports",
+	t => ({
+		id: t.uuid("id").primaryKey().defaultRandom(),
+		userId: t
+			.text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		status: t
+			.text("status")
+			.notNull()
+			.default("pending")
+			.$type<"pending" | "ready" | "failed">(),
+		downloadUrl: t.text("download_url"),
+		expiresAt: t.timestamp("expires_at"),
+		createdAt: t.timestamp("created_at").notNull().defaultNow(),
+	}),
+	t => [index("data_exports_user_id_idx").on(t.userId)]
+)
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
-export const relations = defineRelations({ users, sessions, accounts, todos, tickets }, r => ({
-	users: {
-		sessions: r.many.sessions(),
-		accounts: r.many.accounts(),
+export const relations = defineRelations(
+	{
+		users,
+		sessions,
+		accounts,
+		todos,
+		tickets,
+		rawCaptures,
+		memories,
+		reflections,
+		dataExports,
 	},
-	sessions: {
-		user: r.one.users({
-			from: r.sessions.userId,
-			to: r.users.id,
-		}),
-	},
-	accounts: {
-		user: r.one.users({
-			from: r.accounts.userId,
-			to: r.users.id,
-		}),
-	},
-	todos: {
-		author: r.one.users({
-			from: r.todos.authorId,
-			to: r.users.id,
-		}),
-	},
-	tickets: {
-		author: r.one.users({
-			from: r.tickets.authorId,
-			to: r.users.id,
-		}),
-	},
-}))
+	r => ({
+		users: {
+			sessions: r.many.sessions(),
+			accounts: r.many.accounts(),
+			rawCaptures: r.many.rawCaptures(),
+			memories: r.many.memories(),
+			reflections: r.many.reflections(),
+			dataExports: r.many.dataExports(),
+		},
+		sessions: {
+			user: r.one.users({
+				from: r.sessions.userId,
+				to: r.users.id,
+			}),
+		},
+		accounts: {
+			user: r.one.users({
+				from: r.accounts.userId,
+				to: r.users.id,
+			}),
+		},
+		todos: {
+			author: r.one.users({
+				from: r.todos.authorId,
+				to: r.users.id,
+			}),
+		},
+		tickets: {
+			author: r.one.users({
+				from: r.tickets.authorId,
+				to: r.users.id,
+			}),
+		},
+		rawCaptures: {
+			user: r.one.users({
+				from: r.rawCaptures.userId,
+				to: r.users.id,
+			}),
+			memories: r.many.memories(),
+		},
+		memories: {
+			user: r.one.users({
+				from: r.memories.userId,
+				to: r.users.id,
+			}),
+			rawCapture: r.one.rawCaptures({
+				from: r.memories.rawCaptureId,
+				to: r.rawCaptures.id,
+			}),
+		},
+		reflections: {
+			user: r.one.users({
+				from: r.reflections.userId,
+				to: r.users.id,
+			}),
+		},
+		dataExports: {
+			user: r.one.users({
+				from: r.dataExports.userId,
+				to: r.users.id,
+			}),
+		},
+	})
+)
 
 // ============================================================================
 // SCHEMA
@@ -160,6 +359,10 @@ export const schema = Object.assign(
 		verifications,
 		todos,
 		tickets,
+		rawCaptures,
+		memories,
+		reflections,
+		dataExports,
 	},
 	relations
 )

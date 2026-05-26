@@ -73,7 +73,5 @@ Future<Dio> createDio(SecureStorageService storage) async {
 /// is available synchronously via `ref.read`.
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
-  throw UnimplementedError(
-    'dioProvider must be overridden in ProviderScope',
-  );
+  throw UnimplementedError('dioProvider must be overridden in ProviderScope');
 }

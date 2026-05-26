@@ -53,9 +53,7 @@ class NotificationService {
   Future<void> setListeners({
     required Future<void> Function(ReceivedAction) onAction,
   }) async {
-    await AwesomeNotifications().setListeners(
-      onActionReceivedMethod: onAction,
-    );
+    await AwesomeNotifications().setListeners(onActionReceivedMethod: onAction);
   }
 
   // ── Show notification ─────────────────────────────────────────────────────

@@ -9,17 +9,11 @@ part of 'theme_storage_service.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Provider for [ThemeStorageService].
-///
-/// Depends on [sharedPreferencesProvider] which must be overridden in
-/// main.dart before use.
 
 @ProviderFor(themeStorageService)
 const themeStorageServiceProvider = ThemeStorageServiceProvider._();
 
 /// Provider for [ThemeStorageService].
-///
-/// Depends on [sharedPreferencesProvider] which must be overridden in
-/// main.dart before use.
 
 final class ThemeStorageServiceProvider
     extends
@@ -30,9 +24,6 @@ final class ThemeStorageServiceProvider
         >
     with $Provider<ThemeStorageService> {
   /// Provider for [ThemeStorageService].
-  ///
-  /// Depends on [sharedPreferencesProvider] which must be overridden in
-  /// main.dart before use.
   const ThemeStorageServiceProvider._()
     : super(
         from: null,
@@ -71,15 +62,11 @@ String _$themeStorageServiceHash() =>
     r'aff517c7baf2f26c983766af9861d9bc21064eb5';
 
 /// Provider for [SharedPreferences].
-///
-/// Must be overridden in main.dart with an eagerly initialised instance.
 
 @ProviderFor(sharedPreferences)
 const sharedPreferencesProvider = SharedPreferencesProvider._();
 
 /// Provider for [SharedPreferences].
-///
-/// Must be overridden in main.dart with an eagerly initialised instance.
 
 final class SharedPreferencesProvider
     extends
@@ -90,8 +77,6 @@ final class SharedPreferencesProvider
         >
     with $Provider<SharedPreferences> {
   /// Provider for [SharedPreferences].
-  ///
-  /// Must be overridden in main.dart with an eagerly initialised instance.
   const SharedPreferencesProvider._()
     : super(
         from: null,

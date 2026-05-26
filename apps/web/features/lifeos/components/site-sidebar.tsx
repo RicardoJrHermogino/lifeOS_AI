@@ -2,9 +2,10 @@
 
 import type { Route } from "next"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import { cn } from "@/core/lib/utils"
+import { authClient } from "@/services/better-auth/auth-client"
 
 type NavItem = {
 	href: Route
@@ -15,15 +16,15 @@ type NavItem = {
 
 const PRIMARY_NAV: NavItem[] = [
 	{ href: "/dashboard", label: "Dashboard", icon: "🏠", elementId: "nav-dashboard" },
-	{ href: "/dashboard" as Route, label: "Capture", icon: "🎙️", elementId: "nav-capture" },
-	{ href: "/dashboard" as Route, label: "Timeline", icon: "📅", elementId: "nav-timeline" },
-	{ href: "/dashboard" as Route, label: "Ask", icon: "💬", elementId: "nav-ask" },
-	{ href: "/dashboard" as Route, label: "Insights", icon: "✨", elementId: "nav-insights" },
+	{ href: "/review" as Route, label: "Review", icon: "🎙️", elementId: "nav-capture" },
+	{ href: "/timeline" as Route, label: "Timeline", icon: "📅", elementId: "nav-timeline" },
+	{ href: "/ask" as Route, label: "Ask", icon: "💬", elementId: "nav-ask" },
+	{ href: "/insights" as Route, label: "Insights", icon: "✨", elementId: "nav-insights" },
 ]
 
 const FOOTER_NAV: NavItem[] = [
 	{ href: "/submit-ticket", label: "Support", icon: "🎫", elementId: "nav-support" },
-	{ href: "/dashboard" as Route, label: "Settings", icon: "⚙️", elementId: "nav-settings" },
+	{ href: "/settings" as Route, label: "Settings", icon: "⚙️", elementId: "nav-settings" },
 ]
 
 type SiteSidebarProps = {
@@ -33,6 +34,12 @@ type SiteSidebarProps = {
 
 export function SiteSidebar({ userName, userEmail }: SiteSidebarProps) {
 	const pathname = usePathname()
+	const router = useRouter()
+	const handleLogout = async () => {
+		await authClient.signOut()
+		router.push("/login")
+		router.refresh()
+	}
 	const initials = userName
 		.split(/\s+/)
 		.filter(Boolean)
@@ -49,8 +56,8 @@ export function SiteSidebar({ userName, userEmail }: SiteSidebarProps) {
 				<span className="bg-sidebar-primary inline-block size-2 rounded-full" aria-hidden />
 				LifeOS AI
 			</Link>
-			{PRIMARY_NAV.map((item, idx) => {
-				const isActive = idx === 0 ? pathname === item.href : false
+			{PRIMARY_NAV.map(item => {
+				const isActive = pathname === item.href
 				return (
 					<Link
 						key={item.elementId}
@@ -103,6 +110,17 @@ export function SiteSidebar({ userName, userEmail }: SiteSidebarProps) {
 					<span className="text-sidebar-foreground truncate text-xs">{userEmail}</span>
 				</div>
 			</div>
+			<button
+				type="button"
+				onClick={handleLogout}
+				className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground mt-1 flex items-center gap-2 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors"
+				data-element-id="nav-logout"
+			>
+				<span className="w-5 text-center text-base" aria-hidden>
+					↪
+				</span>
+				Sign out
+			</button>
 		</aside>
 	)
 }

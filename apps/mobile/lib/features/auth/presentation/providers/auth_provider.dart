@@ -12,16 +12,12 @@ class AuthState extends _$AuthState {
     return ref.read(authRepositoryProvider).getSession();
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(authRepositoryProvider).signIn(
-            email: email,
-            password: password,
-          ),
+      () => ref
+          .read(authRepositoryProvider)
+          .signIn(email: email, password: password),
     );
   }
 
@@ -32,11 +28,9 @@ class AuthState extends _$AuthState {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(authRepositoryProvider).signUp(
-            email: email,
-            password: password,
-            name: name,
-          ),
+      () => ref
+          .read(authRepositoryProvider)
+          .signUp(email: email, password: password, name: name),
     );
   }
 

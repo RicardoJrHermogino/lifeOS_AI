@@ -73,8 +73,7 @@ class ProfileScreen extends ConsumerWidget {
                                 (user?.name.isNotEmpty == true)
                                     ? user!.name[0].toUpperCase()
                                     : '?',
-                                style:
-                                    theme.textTheme.headlineLarge?.copyWith(
+                                style: theme.textTheme.headlineLarge?.copyWith(
                                   color: AppColors.primary(brightness),
                                 ),
                               )
@@ -154,8 +153,9 @@ class ProfileScreen extends ConsumerWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.error
-                                      .withOpacity(0.12),
+                                  color: theme.colorScheme.error.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   borderRadius: AppRadii.pillRadius,
                                 ),
                                 child: Text(

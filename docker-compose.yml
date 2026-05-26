@@ -15,7 +15,7 @@ services:
   # PostgreSQL Database
   # ----------------------------------------------------------
   db:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     container_name: turbo-template-db
     ports:
       - "5432:5432"
@@ -25,6 +25,7 @@ services:
       - POSTGRES_DB=lifeosai
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./packages/db/init:/docker-entrypoint-initdb.d:ro
     networks:
       - app-network
     healthcheck:
