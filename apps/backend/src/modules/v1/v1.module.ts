@@ -7,6 +7,7 @@ import { HealthModule } from "./health/health.module"
 import { MemoriesModule } from "./memories/memories.module"
 import { ReflectionsModule } from "./reflections/reflections.module"
 import { SearchModule } from "./search/search.module"
+import { SettingsModule } from "./settings/settings.module"
 import { TicketsModule } from "./tickets/tickets.module"
 import { TimelineModule } from "./timeline/timeline.module"
 
@@ -21,6 +22,7 @@ import { TimelineModule } from "./timeline/timeline.module"
 		SearchModule,
 		ReflectionsModule,
 		ExportsModule,
+		SettingsModule,
 	],
 })
 export class V1Module {}

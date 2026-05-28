@@ -107,7 +107,13 @@
       "Bash(pnpm dev *)",
       "Bash(pnpm -F @repo/theme typecheck)",
       "Bash(pnpm -F @repo/web typecheck)",
-      "Bash(flutter analyze *)"
+      "Bash(flutter analyze *)",
+      "Bash(pnpm -F @repo/backend typecheck)",
+      "Bash(pnpm -F @repo/contracts typecheck)",
+      "Bash(awk '{print $NF}')",
+      "Bash(dart run *)",
+      "Bash(pnpm -F @repo/db build)",
+      "Bash(pnpm -F @repo/contracts build)"
     ]
   }
 }

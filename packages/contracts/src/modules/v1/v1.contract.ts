@@ -7,6 +7,7 @@ import { healthContract } from "./health/health.contract.js"
 import { memoryContract } from "./memories/memories.contract.js"
 import { reflectionContract } from "./reflections/reflections.contract.js"
 import { searchContract } from "./search/search.contract.js"
+import { settingsContract } from "./settings/settings.contract.js"
 import { ticketContract } from "./tickets/tickets.contract.js"
 import { timelineContract } from "./timeline/timeline.contract.js"
 
@@ -25,6 +26,7 @@ export const v1Contract = oc.prefix("/v1").router(
 		search: searchContract,
 		reflection: reflectionContract,
 		export: exportContract,
+		settings: settingsContract,
 	})
 )
 

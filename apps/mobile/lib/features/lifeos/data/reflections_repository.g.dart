@@ -57,10 +57,10 @@ final class ReflectionsRepositoryProvider
 String _$reflectionsRepositoryHash() =>
     r'0436ed9690833cfd30972dbeee854da4ef146009';
 
-@ProviderFor(todayReflection)
-const todayReflectionProvider = TodayReflectionProvider._();
+@ProviderFor(reflectionForDate)
+const reflectionForDateProvider = ReflectionForDateFamily._();
 
-final class TodayReflectionProvider
+final class ReflectionForDateProvider
     extends
         $FunctionalProvider<
           AsyncValue<ReflectionModel>,
@@ -68,19 +68,26 @@ final class TodayReflectionProvider
           FutureOr<ReflectionModel>
         >
     with $FutureModifier<ReflectionModel>, $FutureProvider<ReflectionModel> {
-  const TodayReflectionProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'todayReflectionProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+  const ReflectionForDateProvider._({
+    required ReflectionForDateFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'reflectionForDateProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  String debugGetCreateSourceHash() => _$todayReflectionHash();
+  String debugGetCreateSourceHash() => _$reflectionForDateHash();
+
+  @override
+  String toString() {
+    return r'reflectionForDateProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -90,8 +97,37 @@ final class TodayReflectionProvider
 
   @override
   FutureOr<ReflectionModel> create(Ref ref) {
-    return todayReflection(ref);
+    final argument = this.argument as String;
+    return reflectionForDate(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReflectionForDateProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
   }
 }
 
-String _$todayReflectionHash() => r'fd7407e376f8a048e6ea4ce26a928989688ad069';
+String _$reflectionForDateHash() => r'e04f7be868afc5aa13cc16c0fec7b8b3a42aca2c';
+
+final class ReflectionForDateFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<ReflectionModel>, String> {
+  const ReflectionForDateFamily._()
+    : super(
+        retry: null,
+        name: r'reflectionForDateProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ReflectionForDateProvider call(String date) =>
+      ReflectionForDateProvider._(argument: date, from: this);
+
+  @override
+  String toString() => r'reflectionForDateProvider';
+}

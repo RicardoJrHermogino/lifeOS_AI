@@ -269,6 +269,33 @@ export const dataExports = createTable(
 )
 
 // ============================================================================
+// LIFEOS — USER SETTINGS
+// ============================================================================
+
+export const userSettings = createTable("user_settings", t => ({
+	userId: t
+		.text("user_id")
+		.primaryKey()
+		.references(() => users.id, { onDelete: "cascade" }),
+	// Consent + AI behavior
+	aiProcessingConsent: t.boolean("ai_processing_consent").notNull().default(true),
+	aiPersonalization: t.boolean("ai_personalization").notNull().default(true),
+	proactiveInsights: t.boolean("proactive_insights").notNull().default(false),
+	reflectionTone: t
+		.text("reflection_tone")
+		.notNull()
+		.default("warm")
+		.$type<"neutral" | "warm" | "direct">(),
+	sensitiveTopics: t.jsonb("sensitive_topics").$type<string[]>().notNull().default([]),
+	// Reminders + security
+	dailyReminder: t.boolean("daily_reminder").notNull().default(false),
+	reminderTime: t.text("reminder_time"), // HH:MM, 24h
+	appLock: t.boolean("app_lock").notNull().default(false),
+	createdAt: t.timestamp("created_at").notNull().defaultNow(),
+	updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}))
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 export const relations = defineRelations(
@@ -282,6 +309,7 @@ export const relations = defineRelations(
 		memories,
 		reflections,
 		dataExports,
+		userSettings,
 	},
 	r => ({
 		users: {
@@ -291,6 +319,10 @@ export const relations = defineRelations(
 			memories: r.many.memories(),
 			reflections: r.many.reflections(),
 			dataExports: r.many.dataExports(),
+			settings: r.one.userSettings({
+				from: r.users.id,
+				to: r.userSettings.userId,
+			}),
 		},
 		sessions: {
 			user: r.one.users({
@@ -345,6 +377,12 @@ export const relations = defineRelations(
 				to: r.users.id,
 			}),
 		},
+		userSettings: {
+			user: r.one.users({
+				from: r.userSettings.userId,
+				to: r.users.id,
+			}),
+		},
 	})
 )
 
@@ -363,6 +401,7 @@ export const schema = Object.assign(
 		memories,
 		reflections,
 		dataExports,
+		userSettings,
 	},
 	relations
 )

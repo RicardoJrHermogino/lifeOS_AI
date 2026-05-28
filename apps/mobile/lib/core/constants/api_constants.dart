@@ -38,9 +38,13 @@ class ApiConstants {
   static String get ask => '$versionedUrl/ask';
   static String reflectionByDate(String date) =>
       '$versionedUrl/reflections/$date';
+  static String reflectionById(String id) => '$versionedUrl/reflections/$id';
   static String reflectionFeedback(String id) =>
       '$versionedUrl/reflections/$id/feedback';
   static String get exports => '$versionedUrl/exports';
   static String exportById(String id) => '$versionedUrl/exports/$id';
   static String get account => '$versionedUrl/account';
+
+  // LifeOS - Settings
+  static String get settings => '$versionedUrl/settings';
 }
