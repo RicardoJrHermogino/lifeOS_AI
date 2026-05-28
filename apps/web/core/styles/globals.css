@@ -37,6 +37,36 @@
 	--color-popover: var(--popover);
 	--color-card-foreground: var(--card-foreground);
 	--color-card: var(--card);
+
+	/* Void Intelligence raw token namespace — `bg-lifeos-bg-app`, `text-lifeos-text-primary`, etc. */
+	--color-lifeos-bg-app: var(--lifeos-bg-app);
+	--color-lifeos-bg-surface: var(--lifeos-bg-surface);
+	--color-lifeos-bg-elevated: var(--lifeos-bg-elevated);
+	--color-lifeos-bg-overlay: var(--lifeos-bg-overlay);
+	--color-lifeos-border-subtle: var(--lifeos-border-subtle);
+	--color-lifeos-border-default: var(--lifeos-border-default);
+	--color-lifeos-border-strong: var(--lifeos-border-strong);
+	--color-lifeos-text-primary: var(--lifeos-text-primary);
+	--color-lifeos-text-secondary: var(--lifeos-text-secondary);
+	--color-lifeos-text-muted: var(--lifeos-text-muted);
+	--color-lifeos-text-inverse: var(--lifeos-text-inverse);
+	--color-lifeos-primary: var(--lifeos-accent-primary);
+	--color-lifeos-teal: var(--lifeos-accent-teal);
+	--color-lifeos-violet: var(--lifeos-accent-violet);
+	--color-lifeos-amber: var(--lifeos-accent-amber);
+	--color-lifeos-on-primary: var(--lifeos-on-primary);
+	--color-lifeos-on-teal: var(--lifeos-on-teal);
+	--color-lifeos-on-violet: var(--lifeos-on-violet);
+	--color-lifeos-on-amber: var(--lifeos-on-amber);
+	--color-lifeos-primary-subtle: var(--lifeos-primary-subtle);
+	--color-lifeos-teal-subtle: var(--lifeos-teal-subtle);
+	--color-lifeos-violet-subtle: var(--lifeos-violet-subtle);
+	--color-lifeos-amber-subtle: var(--lifeos-amber-subtle);
+	--color-lifeos-success: var(--lifeos-success);
+	--color-lifeos-warning: var(--lifeos-warning);
+	--color-lifeos-danger: var(--lifeos-danger);
+	--color-lifeos-info: var(--lifeos-info);
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -46,73 +76,140 @@
 	--radius-4xl: calc(var(--radius) + 16px);
 }
 
+/*
+ * Void Intelligence — Light mode ("Frost").
+ * `:root` is the light token set; the `.dark` block below overrides per-mode
+ * tokens. Mode-agnostic accents/semantics are declared once here and inherited.
+ * Dark is still the effective fallback: next-themes defaults to "system" and
+ * the OS dark preference resolves to the `.dark` class.
+ */
 :root {
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.12 0.005 75);
-	--card: oklch(0.99 0.003 75);
-	--card-foreground: oklch(0.12 0.005 75);
-	--popover: oklch(0.99 0.003 75);
-	--popover-foreground: oklch(0.12 0.005 75);
-	--primary: oklch(0.72 0.18 75);
-	--primary-foreground: oklch(0.10 0.01 75);
-	--secondary: oklch(0.95 0.01 75);
-	--secondary-foreground: oklch(0.18 0.008 75);
-	--muted: oklch(0.95 0.01 75);
-	--muted-foreground: oklch(0.50 0.02 75);
-	--accent: oklch(0.72 0.18 75);
-	--accent-foreground: oklch(0.10 0.01 75);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.88 0.01 75);
-	--input: oklch(0.88 0.01 75);
-	--ring: oklch(0.72 0.18 75);
-	--chart-1: oklch(0.78 0.16 75);
-	--chart-2: oklch(0.72 0.18 75);
-	--chart-3: oklch(0.62 0.18 70);
-	--chart-4: oklch(0.55 0.15 65);
-	--chart-5: oklch(0.45 0.13 60);
 	--radius: 1.25rem;
-	--sidebar: oklch(0.12 0.005 75);
-	--sidebar-foreground: oklch(0.65 0.02 75);
-	--sidebar-primary: oklch(0.72 0.18 75);
-	--sidebar-primary-foreground: oklch(0.10 0.01 75);
-	--sidebar-accent: oklch(0.18 0.008 75);
-	--sidebar-accent-foreground: oklch(0.97 0.005 75);
-	--sidebar-border: oklch(0.22 0.008 75);
-	--sidebar-ring: oklch(0.72 0.18 75);
+
+	/* Void raw tokens — light */
+	--lifeos-bg-app: #f7f8fd;
+	--lifeos-bg-surface: #eef0fb;
+	--lifeos-bg-elevated: #ffffff;
+	--lifeos-bg-overlay: #e2e6fa;
+	--lifeos-border-subtle: #d8dcf5;
+	--lifeos-border-default: #c4caee;
+	--lifeos-border-strong: #3d5af1;
+	--lifeos-text-primary: #1a2050;
+	--lifeos-text-secondary: #5a6490;
+	--lifeos-text-muted: #9099c0;
+	--lifeos-text-inverse: #ffffff;
+
+	/* Void raw tokens — shared accents (mode-agnostic) */
+	--lifeos-accent-primary: #3d5af1;
+	--lifeos-accent-teal: #5eead4;
+	--lifeos-accent-violet: #a78bfa;
+	--lifeos-accent-amber: #f59e0b;
+	--lifeos-on-primary: #ffffff;
+	--lifeos-on-teal: #065f46;
+	--lifeos-on-violet: #3b0764;
+	--lifeos-on-amber: #451a03;
+	--lifeos-success: #10b981;
+	--lifeos-warning: #f59e0b;
+	--lifeos-danger: #ef4444;
+	--lifeos-info: #3d5af1;
+
+	/* Void raw tokens — chip backgrounds (mode-dependent, light values) */
+	--lifeos-primary-subtle: #dde2fb;
+	--lifeos-teal-subtle: #d0f4ec;
+	--lifeos-violet-subtle: #ede8ff;
+	--lifeos-amber-subtle: #fef3c7;
+
+	/* shadcn/ui semantic mapping — light */
+	--background: var(--lifeos-bg-app);
+	--foreground: var(--lifeos-text-primary);
+	--card: var(--lifeos-bg-elevated);
+	--card-foreground: var(--lifeos-text-primary);
+	--popover: var(--lifeos-bg-elevated);
+	--popover-foreground: var(--lifeos-text-primary);
+	--primary: var(--lifeos-accent-primary);
+	--primary-foreground: var(--lifeos-on-primary);
+	--secondary: var(--lifeos-bg-surface);
+	--secondary-foreground: var(--lifeos-text-primary);
+	--muted: var(--lifeos-bg-surface);
+	--muted-foreground: var(--lifeos-text-secondary);
+	--accent: var(--lifeos-bg-overlay);
+	--accent-foreground: var(--lifeos-text-primary);
+	--destructive: var(--lifeos-danger);
+	--border: var(--lifeos-border-default);
+	--input: var(--lifeos-border-default);
+	--ring: var(--lifeos-accent-primary);
+	--chart-1: var(--lifeos-accent-primary);
+	--chart-2: var(--lifeos-accent-teal);
+	--chart-3: var(--lifeos-accent-violet);
+	--chart-4: var(--lifeos-accent-amber);
+	--chart-5: var(--lifeos-success);
+	--sidebar: var(--lifeos-bg-surface);
+	--sidebar-foreground: var(--lifeos-text-secondary);
+	--sidebar-primary: var(--lifeos-accent-primary);
+	--sidebar-primary-foreground: var(--lifeos-on-primary);
+	--sidebar-accent: var(--lifeos-bg-overlay);
+	--sidebar-accent-foreground: var(--lifeos-text-primary);
+	--sidebar-border: var(--lifeos-border-subtle);
+	--sidebar-ring: var(--lifeos-accent-primary);
 }
 
+/*
+ * Void Intelligence — Dark mode ("Abyss"). Default/fallback theme.
+ * Only per-mode tokens are overridden; shared accents/semantics inherit from
+ * `:root`.
+ */
 .dark {
-	--background: oklch(0.12 0.005 75);
-	--foreground: oklch(0.97 0.005 75);
-	--card: oklch(0.18 0.008 75);
-	--card-foreground: oklch(0.97 0.005 75);
-	--popover: oklch(0.18 0.008 75);
-	--popover-foreground: oklch(0.97 0.005 75);
-	--primary: oklch(0.78 0.16 75);
-	--primary-foreground: oklch(0.10 0.01 75);
-	--secondary: oklch(0.22 0.008 75);
-	--secondary-foreground: oklch(0.97 0.005 75);
-	--muted: oklch(0.22 0.008 75);
-	--muted-foreground: oklch(0.65 0.02 75);
-	--accent: oklch(0.78 0.16 75);
-	--accent-foreground: oklch(0.10 0.01 75);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.78 0.16 75);
-	--chart-1: oklch(0.78 0.16 75);
-	--chart-2: oklch(0.72 0.18 75);
-	--chart-3: oklch(0.62 0.18 70);
-	--chart-4: oklch(0.55 0.15 65);
-	--chart-5: oklch(0.45 0.13 60);
-	--sidebar: oklch(0.12 0.005 75);
-	--sidebar-foreground: oklch(0.65 0.02 75);
-	--sidebar-primary: oklch(0.78 0.16 75);
-	--sidebar-primary-foreground: oklch(0.10 0.01 75);
-	--sidebar-accent: oklch(0.18 0.008 75);
-	--sidebar-accent-foreground: oklch(0.97 0.005 75);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.78 0.16 75);
+	/* Void raw tokens — dark */
+	--lifeos-bg-app: #0d0f1a;
+	--lifeos-bg-surface: #141829;
+	--lifeos-bg-elevated: #1f2744;
+	--lifeos-bg-overlay: #2d3a6a;
+	--lifeos-border-subtle: #1f2744;
+	--lifeos-border-default: #2d3a6a;
+	--lifeos-border-strong: #3d5af1;
+	--lifeos-text-primary: #c8d0f0;
+	--lifeos-text-secondary: #7880a0;
+	--lifeos-text-muted: #4a5270;
+	--lifeos-text-inverse: #0d0f1a;
+
+	/* Void raw tokens — chip backgrounds (mode-dependent, dark values) */
+	--lifeos-primary-subtle: #1a2460;
+	--lifeos-teal-subtle: #0a2e28;
+	--lifeos-violet-subtle: #1e1540;
+	--lifeos-amber-subtle: #451a03;
+
+	/* shadcn/ui semantic mapping — dark */
+	--background: var(--lifeos-bg-app);
+	--foreground: var(--lifeos-text-primary);
+	--card: var(--lifeos-bg-elevated);
+	--card-foreground: var(--lifeos-text-primary);
+	--popover: var(--lifeos-bg-overlay);
+	--popover-foreground: var(--lifeos-text-primary);
+	--primary: var(--lifeos-accent-primary);
+	--primary-foreground: var(--lifeos-on-primary);
+	--secondary: var(--lifeos-bg-elevated);
+	--secondary-foreground: var(--lifeos-text-primary);
+	--muted: var(--lifeos-bg-surface);
+	--muted-foreground: var(--lifeos-text-secondary);
+	--accent: var(--lifeos-bg-elevated);
+	--accent-foreground: var(--lifeos-text-primary);
+	--destructive: var(--lifeos-danger);
+	--border: var(--lifeos-border-default);
+	--input: var(--lifeos-border-default);
+	--ring: var(--lifeos-border-strong);
+	--chart-1: var(--lifeos-accent-primary);
+	--chart-2: var(--lifeos-accent-teal);
+	--chart-3: var(--lifeos-accent-violet);
+	--chart-4: var(--lifeos-accent-amber);
+	--chart-5: var(--lifeos-success);
+	--sidebar: var(--lifeos-bg-surface);
+	--sidebar-foreground: var(--lifeos-text-secondary);
+	--sidebar-primary: var(--lifeos-accent-primary);
+	--sidebar-primary-foreground: var(--lifeos-on-primary);
+	--sidebar-accent: var(--lifeos-bg-elevated);
+	--sidebar-accent-foreground: var(--lifeos-text-primary);
+	--sidebar-border: var(--lifeos-border-subtle);
+	--sidebar-ring: var(--lifeos-border-strong);
 }
 
 @layer base {

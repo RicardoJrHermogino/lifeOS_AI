@@ -1,0 +1,29 @@
+{
+	"name": "@repo/theme",
+	"version": "0.0.1",
+	"description": "Void Intelligence design tokens — shared source of truth for web (CSS vars) and mobile (Dart mirror).",
+	"private": true,
+	"license": "UNLICENSED",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"format": "prettier --check . --ignore-path ../../.gitignore",
+		"format:fix": "prettier --write . --ignore-path ../../.gitignore",
+		"lint": "eslint --flag unstable_native_nodejs_ts_config \"src/**/*.ts\"",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/prettier-config": "workspace:*",
+		"@repo/tsconfig": "workspace:*",
+		"@types/node": "catalog:",
+		"eslint": "catalog:",
+		"prettier": "catalog:",
+		"typescript": "catalog:"
+	},
+	"prettier": "@repo/prettier-config"
+}

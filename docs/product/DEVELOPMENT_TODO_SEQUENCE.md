@@ -95,53 +95,53 @@ Core foundations that must be completed first:
 
 ### Tasks
 
-- [ ] Verify the monorepo structure matches the README:
-  - [ ] Confirm `apps/web` is the Next.js frontend.
-  - [ ] Confirm `apps/backend` is the NestJS API.
-  - [ ] Confirm `apps/mobile` is the Flutter app.
-  - [ ] Confirm `packages/contracts` owns API contracts and DTO schemas.
-  - [ ] Confirm `packages/db` owns Drizzle schema, migrations, and seed logic.
-  - [ ] Confirm `packages/auth` owns Better Auth shared config.
-  - [ ] Confirm `packages/e2e-web` owns Playwright tests.
-- [ ] Install dependencies using the repo package manager:
-  - [ ] Run `pnpm install`.
-  - [ ] Confirm Node version is `>=22.20.0`.
-  - [ ] Confirm pnpm version is `>=10.15.1`.
-  - [ ] Confirm Flutter/Dart toolchain is installed for `apps/mobile`.
-- [ ] Create and verify environment files:
-  - [ ] `apps/backend/.env`
-  - [ ] `apps/web/.env`
-  - [ ] `packages/db/.env`
-  - [ ] `apps/mobile/.env` if the mobile env file is required by the mobile runtime.
-- [ ] Configure required backend env vars in `apps/backend/src/config/env.config.ts`:
-  - [ ] `DATABASE_URL`
-  - [ ] `BETTER_AUTH_SECRET`
-  - [ ] `BETTER_AUTH_TRUSTED_ORIGINS`
-  - [ ] `CORS_ORIGINS`
-  - [ ] `PORT`
-  - [ ] `HOST`
-  - [ ] Optional `GOOGLE_CLIENT_ID`
-  - [ ] Optional `GOOGLE_CLIENT_SECRET`
-  - [ ] Optional `OPENAI_API_KEY`
-  - [ ] Optional `OPENAI_MODEL`
-  - [ ] Optional `OPENAI_EMBEDDING_MODEL`
-  - [ ] Optional `REDIS_URL`
-  - [ ] Optional `STORAGE_BUCKET`
-  - [ ] Optional `STORAGE_ENDPOINT`
-  - [ ] Optional `STORAGE_ACCESS_KEY`
-  - [ ] Optional `STORAGE_SECRET_KEY`
-  - [ ] Optional `STORAGE_REGION`
-- [ ] Configure required web env vars:
-  - [ ] `NEXT_PUBLIC_APP_URL`
-  - [ ] `NEXT_PUBLIC_API_BASE_URL`
-  - [ ] `NEXT_PUBLIC_API_VERSION`
+- [x] Verify the monorepo structure matches the README:
+  - [x] Confirm `apps/web` is the Next.js frontend.
+  - [x] Confirm `apps/backend` is the NestJS API.
+  - [x] Confirm `apps/mobile` is the Flutter app.
+  - [x] Confirm `packages/contracts` owns API contracts and DTO schemas.
+  - [x] Confirm `packages/db` owns Drizzle schema, migrations, and seed logic.
+  - [x] Confirm `packages/auth` owns Better Auth shared config.
+  - [x] Confirm `packages/e2e-web` owns Playwright tests.
+- [x] Install dependencies using the repo package manager:
+  - [x] Run `pnpm install`.
+  - [x] Confirm Node version is `>=22.20.0`.
+  - [x] Confirm pnpm version is `>=10.15.1`.
+  - [x] Confirm Flutter/Dart toolchain is installed for `apps/mobile`.
+- [x] Create and verify environment files:
+  - [x] `apps/backend/.env`
+  - [x] `apps/web/.env`
+  - [x] `packages/db/.env`
+  - [x] `apps/mobile/.env` if the mobile env file is required by the mobile runtime.
+- [x] Configure required backend env vars in `apps/backend/src/config/env.config.ts`:
+  - [x] `DATABASE_URL`
+  - [x] `BETTER_AUTH_SECRET`
+  - [x] `BETTER_AUTH_TRUSTED_ORIGINS`
+  - [x] `CORS_ORIGINS`
+  - [x] `PORT`
+  - [x] `HOST`
+  - [x] Optional `GOOGLE_CLIENT_ID`
+  - [x] Optional `GOOGLE_CLIENT_SECRET`
+  - [x] Optional `OPENAI_API_KEY`
+  - [x] Optional `OPENAI_MODEL`
+  - [x] Optional `OPENAI_EMBEDDING_MODEL`
+  - [x] Optional `REDIS_URL`
+  - [x] Optional `STORAGE_BUCKET`
+  - [x] Optional `STORAGE_ENDPOINT`
+  - [x] Optional `STORAGE_ACCESS_KEY`
+  - [x] Optional `STORAGE_SECRET_KEY`
+  - [x] Optional `STORAGE_REGION`
+- [x] Configure required web env vars:
+  - [x] `NEXT_PUBLIC_APP_URL`
+  - [x] `NEXT_PUBLIC_API_BASE_URL`
+  - [x] `NEXT_PUBLIC_API_VERSION`
 - [ ] Configure mobile API settings:
-  - [ ] Review `apps/mobile/lib/core/constants/api_constants.dart`.
-  - [ ] Confirm mobile points to the same backend base URL used by Better Auth and oRPC.
+  - [x] Review `apps/mobile/lib/core/constants/api_constants.dart`.
+  - [x] Confirm mobile points to the same backend base URL used by Better Auth and oRPC.
   - [ ] Confirm Android emulator/device can reach the backend host.
 - [ ] Start local PostgreSQL:
   - [ ] Run `docker compose up -d db`.
-  - [ ] Confirm PostgreSQL is reachable through `DATABASE_URL`.
+  - [x] Confirm PostgreSQL is reachable through `DATABASE_URL`.
 - [ ] Confirm Drizzle database workflow:
   - [ ] Run `pnpm db:push` for local schema push.
   - [ ] Run `pnpm db:generate` if migration files are required for team workflow.
@@ -164,11 +164,13 @@ Core foundations that must be completed first:
   - [ ] `pnpm dev:mobile`
   - [ ] `pnpm dev:web` for auth/support/internal verification only during mobile-first MVP work.
 - [ ] Document setup gaps:
-  - [ ] Missing `.env.example` files, if any.
+  - [x] Missing `.env.example` files, if any.
   - [ ] Missing migration files, if any.
-  - [ ] Missing pgvector setup instructions, if any.
+  - [x] Missing pgvector setup instructions, if any.
   - [ ] Missing local Redis setup for background jobs, if any.
   - [ ] Missing object storage setup for voice audio and exports, if any.
+  - [ ] Current blocker: Docker is not installed or not on PATH, so `docker compose up -d db` cannot run.
+  - [ ] Current blocker: reachable local PostgreSQL does not have pgvector installed, so `pnpm db:push` fails on `memories.embedding vector(1536)`.
 
 ### Done when
 

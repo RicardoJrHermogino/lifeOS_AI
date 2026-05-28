@@ -19,6 +19,7 @@
 		"dev": "turbo watch dev --continue",
 		"dev:web": "turbo watch dev -F @repo/web...",
 		"dev:mobile": "turbo watch dev -F @repo/mobile...",
+		"dev:mobile-run": "pnpm -F @repo/mobile run dev:mobile",
 		"dev:backend": "turbo watch dev -F @repo/backend...",
 		"start": "turbo run start",
 		"test": "turbo run test",

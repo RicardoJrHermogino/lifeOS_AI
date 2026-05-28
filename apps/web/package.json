@@ -26,6 +26,7 @@
 		"@orpc/tanstack-query": "^1.13.4",
 		"@repo/auth": "workspace:*",
 		"@repo/contracts": "workspace:*",
+		"@repo/theme": "workspace:*",
 		"@t3-oss/env-nextjs": "catalog:",
 		"@tanstack/react-form": "catalog:",
 		"@tanstack/react-query": "catalog:",
