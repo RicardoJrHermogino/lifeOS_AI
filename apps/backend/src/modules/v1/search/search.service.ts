@@ -5,6 +5,7 @@ import { memories } from "@repo/db/schema"
 
 import { AiService } from "@/common/ai/ai.service"
 import { db } from "@/common/database/database.client"
+import { getEffectiveSettings } from "@/common/settings/user-settings"
 import { type V1Inputs } from "@/config/contract-types"
 
 type SearchInput = V1Inputs["search"]["search"]
@@ -46,6 +47,17 @@ export class SearchService {
 	}
 
 	async ask({ payload, userId }: { payload: AskInput; userId: string }) {
+		const settings = await getEffectiveSettings(userId)
+
+		// Consent gate: questions are answered by AI, so require AI processing consent.
+		if (!settings.aiProcessingConsent) {
+			return {
+				answer:
+					"AI features are turned off. Enable AI processing in Settings to ask questions about your memories.",
+				citations: [],
+			}
+		}
+
 		const { results } = await this.search({
 			payload: { query: payload.question, limit: (payload.limit as number | undefined) ?? 8 },
 			userId,
@@ -56,7 +68,9 @@ export class SearchService {
 			summary: r.memory.summary,
 			eventDate: r.memory.eventDate,
 		}))
-		const answer = await this.ai.answerQuestion(payload.question, refs)
+		const answer = await this.ai.answerQuestion(payload.question, refs, {
+			sensitiveTopics: settings.sensitiveTopics,
+		})
 		// Re-fetch citations from canonical rows to guarantee they're not stale/deleted.
 		if (answer.citations.length === 0) return answer
 		const citedIds = answer.citations.map(c => c.memoryId)

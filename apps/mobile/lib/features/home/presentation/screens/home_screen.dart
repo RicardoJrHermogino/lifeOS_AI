@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
+import 'package:mobile/features/home/presentation/providers/home_tab_controller.dart';
 import 'package:mobile/features/lifeos/presentation/screens/ask_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/capture_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/insights_tab.dart';
@@ -12,15 +13,8 @@ import 'package:mobile/features/lifeos/presentation/screens/timeline_tab.dart';
 // ─── Void Intelligence accent ────────────────────────────────────────────────
 const _kAccent = Color(0xFF3D5AF1); // Electric Blue — same in both modes
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
 
   static const _tabs = <_TabSpec>[
     _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
@@ -31,8 +25,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final brightness = Theme.of(context).brightness;
+    final selectedIndex = ref.watch(homeTabControllerProvider);
 
     return Container(
       decoration: BoxDecoration(
@@ -42,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           Positioned.fill(
             child: IndexedStack(
-              index: _selectedIndex,
+              index: selectedIndex,
               children: const [
                 CaptureTab(),
                 TimelineTab(),
@@ -57,8 +52,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             right: 16,
             bottom: 14,
             child: _LiquidGlassTabBar(
-              selectedIndex: _selectedIndex,
-              onItemSelected: (i) => setState(() => _selectedIndex = i),
+              selectedIndex: selectedIndex,
+              onItemSelected: (i) =>
+                  ref.read(homeTabControllerProvider.notifier).setIndex(i),
               tabs: _tabs,
               brightness: brightness,
             ),

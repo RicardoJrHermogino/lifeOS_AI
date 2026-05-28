@@ -113,7 +113,13 @@
       "Bash(awk '{print $NF}')",
       "Bash(dart run *)",
       "Bash(pnpm -F @repo/db build)",
-      "Bash(pnpm -F @repo/contracts build)"
+      "Bash(pnpm -F @repo/contracts build)",
+      "Bash(flutter pub *)",
+      "Bash(pnpm -F @repo/db typecheck)",
+      "Bash(pnpm db:seed)",
+      "Bash(curl -s -m 10 -X POST http://localhost:3000/api/v1/auth/sign-in/email -H \"Content-Type: application/json\" -d '{\"email\":\"alex@turbo-template.local\",\"password\":\"password123\"}' -c /tmp/lifeos_cookies.txt -w \"\\\\nHTTP %{http_code}\\\\n\")",
+      "Bash(curl -s -m 10 http://localhost:3000/api/v1/settings -b /tmp/lifeos_cookies.txt -w \"\\\\nHTTP %{http_code}\\\\n\")",
+      "Bash(curl -s -m 10 http://localhost:3000/api/v1/settings -w \"\\\\nHTTP %{http_code}\\\\n\")"
     ]
   }
 }

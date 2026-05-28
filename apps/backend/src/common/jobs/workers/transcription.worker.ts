@@ -6,6 +6,7 @@ import { rawCaptures } from "@repo/db/schema"
 
 import { type AiService } from "@/common/ai/ai.service"
 import { db } from "@/common/database/database.client"
+import { getEffectiveSettings } from "@/common/settings/user-settings"
 import { env } from "@/config/env.config"
 
 import type { JobsService } from "../jobs.service"
@@ -21,6 +22,19 @@ export function startTranscriptionWorker(ai: AiService, jobs: JobsService): Work
 		async job => {
 			const { captureId, userId } = job.data
 			logger.log(`Transcribing capture ${captureId}`)
+
+			// Consent gate: skip transcription/extraction if AI processing is disabled.
+			const settings = await getEffectiveSettings(userId)
+			if (!settings.aiProcessingConsent) {
+				logger.log(
+					`Skipping transcription for ${captureId}: AI processing consent disabled`
+				)
+				await db
+					.update(rawCaptures)
+					.set({ status: "done", updatedAt: new Date() })
+					.where(and(eq(rawCaptures.id, captureId), eq(rawCaptures.userId, userId)))
+				return
+			}
 
 			await db
 				.update(rawCaptures)

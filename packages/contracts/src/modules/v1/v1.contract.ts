@@ -4,6 +4,7 @@ import { captureContract } from "./captures/captures.contract.js"
 import { v1Example } from "./examples/v1.example.js"
 import { exportContract } from "./exports/exports.contract.js"
 import { healthContract } from "./health/health.contract.js"
+import { insightContract } from "./insights/insights.contract.js"
 import { memoryContract } from "./memories/memories.contract.js"
 import { reflectionContract } from "./reflections/reflections.contract.js"
 import { searchContract } from "./search/search.contract.js"
@@ -27,6 +28,7 @@ export const v1Contract = oc.prefix("/v1").router(
 		reflection: reflectionContract,
 		export: exportContract,
 		settings: settingsContract,
+		insight: insightContract,
 	})
 )
 

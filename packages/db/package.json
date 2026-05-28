@@ -32,6 +32,7 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"enable-vector": "tsx src/enable-vector.ts",
+		"embed-memories": "tsx src/embed-memories.ts",
 		"format": "prettier --write \"src/**/*.ts\"",
 		"lint": "eslint --flag unstable_native_nodejs_ts_config \"src/**/*.ts\" --fix",
 		"typecheck": "tsc --noEmit",

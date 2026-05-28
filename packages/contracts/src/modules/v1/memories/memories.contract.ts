@@ -103,4 +103,20 @@ export const memoryContract = {
 		})
 		.input(MemoryIdSchema)
 		.output(MemorySchema),
+
+	/**
+	 * Related memories (shared people/topics/places)
+	 * GET /memories/{id}/related
+	 */
+	related: oc
+		.route({
+			method: "GET",
+			path: "/memories/{id}/related",
+			summary: "Related memories",
+			description:
+				"Saved memories that share people, topics, or places with this one, ranked by overlap",
+			tags: ["Memories"],
+		})
+		.input(MemoryIdSchema)
+		.output(z.array(MemorySchema)),
 }

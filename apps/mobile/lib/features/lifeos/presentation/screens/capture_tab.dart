@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
+import 'package:mobile/features/lifeos/data/models/queued_capture.dart';
+import 'package:mobile/features/lifeos/presentation/providers/capture_sync_controller.dart';
+import 'package:mobile/features/lifeos/presentation/providers/connectivity_provider.dart';
 import 'package:mobile/features/lifeos/presentation/screens/memory_review_screen.dart';
 import 'package:mobile/features/lifeos/presentation/screens/text_capture_screen.dart';
 import 'package:mobile/features/lifeos/presentation/screens/voice_capture_screen.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
 
-class CaptureTab extends StatelessWidget {
+class CaptureTab extends ConsumerWidget {
   const CaptureTab({super.key});
 
   void _openVoice(BuildContext context) {
@@ -28,9 +32,10 @@ class CaptureTab extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final brightness = theme.brightness;
+    final online = ref.watch(isOnlineProvider).value ?? true;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -51,6 +56,10 @@ class CaptureTab extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
+            if (!online) ...[
+              const _OfflineBanner(),
+              const SizedBox(height: AppSpacing.s16),
+            ],
             Text(
               'What should your future self remember?',
               style: theme.textTheme.headlineSmall,
@@ -129,10 +138,7 @@ class CaptureTab extends StatelessWidget {
                         color: AppColors.primary(brightness),
                       ),
                       const SizedBox(width: AppSpacing.s12),
-                      Text(
-                        'Memory preview',
-                        style: theme.textTheme.titleMedium,
-                      ),
+                      Text('Memory preview', style: theme.textTheme.titleMedium),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.s12),
@@ -156,24 +162,164 @@ class CaptureTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.s20),
-            Text('Recent captures', style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.s12),
-            const _RecentCaptureTile(
-              title: 'Clarified MVP direction',
-              time: 'Today, 2:40 PM',
-              mood: 'Focused',
-              source: Icons.mic_none_rounded,
-            ),
-            const SizedBox(height: AppSpacing.s12),
-            const _RecentCaptureTile(
-              title: 'Noticed pressure around launch scope',
-              time: 'Today, 8:10 PM',
-              mood: 'Stressed',
-              source: Icons.edit_note_rounded,
-            ),
+            const _PendingSyncSection(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _OfflineBanner extends StatelessWidget {
+  const _OfflineBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.elevated(brightness),
+        borderRadius: AppRadii.mediumRadius,
+        border: Border.all(color: AppColors.border(brightness), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.cloud_off_rounded,
+            size: 20,
+            color: AppColors.secondaryText(brightness),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "You're offline. Captures are saved and sync automatically when you reconnect.",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText(brightness),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shows captures waiting to upload, with per-item status and a manual sync.
+class _PendingSyncSection extends ConsumerWidget {
+  const _PendingSyncSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+    final queue = ref.watch(captureSyncControllerProvider).value ?? const [];
+    final online = ref.watch(isOnlineProvider).value ?? true;
+
+    if (queue.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Pending sync', style: theme.textTheme.titleMedium),
+            const SizedBox(width: 8),
+            Text(
+              '${queue.length}',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.secondaryText(brightness),
+              ),
+            ),
+            const Spacer(),
+            if (online)
+              TextButton(
+                onPressed: () =>
+                    ref.read(captureSyncControllerProvider.notifier).syncNow(),
+                child: const Text('Sync now'),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (var i = 0; i < queue.length; i++) ...[
+                if (i > 0)
+                  Container(
+                    height: 0.5,
+                    color: AppColors.border(brightness),
+                  ),
+                _QueuedRow(item: queue[i]),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QueuedRow extends ConsumerWidget {
+  const _QueuedRow({required this.item});
+
+  final QueuedCapture item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+
+    final (statusLabel, statusColor) = switch (item.status) {
+      QueuedCaptureStatus.pending => (
+        'Waiting',
+        AppColors.secondaryText(brightness),
+      ),
+      QueuedCaptureStatus.syncing => ('Syncing…', AppColors.accent(brightness)),
+      QueuedCaptureStatus.failed => (
+        'Failed — will retry',
+        theme.colorScheme.error,
+      ),
+    };
+
+    final preview = item.type == 'voice'
+        ? 'Voice capture'
+        : (item.body?.trim().isNotEmpty == true
+              ? item.body!.trim()
+              : 'Text capture');
+
+    return ListTile(
+      leading: Icon(
+        item.type == 'voice'
+            ? Icons.mic_none_rounded
+            : Icons.edit_note_rounded,
+        color: AppColors.primary(brightness),
+      ),
+      title: Text(
+        preview,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodyLarge,
+      ),
+      subtitle: Text(
+        statusLabel,
+        style: theme.textTheme.bodySmall?.copyWith(color: statusColor),
+      ),
+      trailing: item.status == QueuedCaptureStatus.syncing
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : IconButton(
+              tooltip: 'Remove',
+              icon: const Icon(Icons.close_rounded, size: 18),
+              onPressed: () => ref
+                  .read(captureSyncControllerProvider.notifier)
+                  .remove(item.syncId),
+            ),
     );
   }
 }
@@ -195,72 +341,6 @@ class _InfoChip extends StatelessWidget {
         borderRadius: AppRadii.pillRadius,
       ),
       child: Text(label, style: theme.textTheme.labelLarge),
-    );
-  }
-}
-
-class _RecentCaptureTile extends StatelessWidget {
-  const _RecentCaptureTile({
-    required this.title,
-    required this.time,
-    required this.mood,
-    required this.source,
-  });
-
-  final String title;
-  final String time;
-  final String mood;
-  final IconData source;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
-
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.s16),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: AppGradients.buttonGradient(brightness),
-              borderRadius: BorderRadius.circular(AppRadii.card),
-              border: Border.all(
-                color: AppColors.border(brightness),
-                width: 0.5,
-              ),
-            ),
-            child: Icon(source, color: AppColors.primary(brightness), size: 22),
-          ),
-          const SizedBox(width: AppSpacing.s16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.s2),
-                Text(
-                  '$time · $mood',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.secondaryText(brightness),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.secondaryText(brightness),
-          ),
-        ],
-      ),
     );
   }
 }

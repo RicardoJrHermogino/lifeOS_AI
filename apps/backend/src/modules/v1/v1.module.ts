@@ -4,6 +4,7 @@ import { CapturesModule } from "./captures/captures.module"
 import { ExamplesModule } from "./examples/examples.module"
 import { ExportsModule } from "./exports/exports.module"
 import { HealthModule } from "./health/health.module"
+import { InsightsModule } from "./insights/insights.module"
 import { MemoriesModule } from "./memories/memories.module"
 import { ReflectionsModule } from "./reflections/reflections.module"
 import { SearchModule } from "./search/search.module"
@@ -23,6 +24,7 @@ import { TimelineModule } from "./timeline/timeline.module"
 		ReflectionsModule,
 		ExportsModule,
 		SettingsModule,
+		InsightsModule,
 	],
 })
 export class V1Module {}

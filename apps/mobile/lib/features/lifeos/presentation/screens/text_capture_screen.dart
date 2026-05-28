@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/features/lifeos/presentation/providers/capture_sync_controller.dart';
 import 'package:mobile/features/lifeos/presentation/providers/captures_provider.dart';
+import 'package:mobile/features/lifeos/presentation/providers/connectivity_provider.dart';
 import 'package:mobile/features/lifeos/presentation/screens/capture_status_screen.dart';
 
 class TextCaptureScreen extends ConsumerStatefulWidget {
@@ -25,17 +27,41 @@ class _TextCaptureScreenState extends ConsumerState<TextCaptureScreen> {
     final body = _controller.text.trim();
     if (body.isEmpty) return;
     final mood = _moodController.text.trim();
+    final moodValue = mood.isEmpty ? null : mood;
+
+    // Offline: queue locally and let the sync controller upload on reconnect.
+    final online = ref.read(isOnlineProvider).value ?? true;
+    if (!online) {
+      await _queueOffline(body, moodValue);
+      return;
+    }
+
     final notifier = ref.read(createCaptureProvider.notifier);
-    final result = await notifier.submitText(
-      body: body,
-      mood: mood.isEmpty ? null : mood,
-    );
-    if (!mounted || result == null) return;
+    final result = await notifier.submitText(body: body, mood: moodValue);
+    if (!mounted) return;
+
+    // Online attempt failed (e.g. transient network) — fall back to the queue.
+    if (result == null) {
+      await _queueOffline(body, moodValue);
+      return;
+    }
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => CaptureStatusScreen(captureId: result.id),
       ),
     );
+  }
+
+  Future<void> _queueOffline(String body, String? mood) async {
+    await ref
+        .read(captureSyncControllerProvider.notifier)
+        .enqueueText(body: body, mood: mood);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Saved offline — will sync when connected')),
+    );
+    Navigator.of(context).pop();
   }
 
   @override

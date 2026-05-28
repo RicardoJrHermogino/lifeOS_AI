@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/features/lifeos/data/models/memory_model.dart';
+import 'package:mobile/features/lifeos/data/search_repository.dart';
+import 'package:mobile/features/lifeos/presentation/providers/search_controller.dart';
 import 'package:mobile/features/lifeos/presentation/providers/timeline_controller.dart';
 import 'package:mobile/features/lifeos/presentation/screens/memory_review_detail_screen.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:toastification/toastification.dart';
 
 class TimelineTab extends ConsumerStatefulWidget {
   const TimelineTab({super.key});
@@ -15,6 +18,7 @@ class TimelineTab extends ConsumerStatefulWidget {
 
 class _TimelineTabState extends ConsumerState<TimelineTab> {
   final ScrollController _scroll = ScrollController();
+  final TextEditingController _search = TextEditingController();
 
   @override
   void initState() {
@@ -27,6 +31,7 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
     _scroll
       ..removeListener(_onScroll)
       ..dispose();
+    _search.dispose();
     super.dispose();
   }
 
@@ -40,6 +45,8 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
   Widget build(BuildContext context) {
     final async = ref.watch(timelineControllerProvider);
     final filter = ref.watch(timelineFilterControllerProvider);
+    final query = ref.watch(searchQueryProvider);
+    final searching = query.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -52,9 +59,7 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
           IconButton(
             tooltip: 'Filter',
             icon: Icon(
-              filter.isEmpty
-                  ? Icons.filter_list
-                  : Icons.filter_list_alt,
+              filter.isEmpty ? Icons.filter_list : Icons.filter_list_alt,
             ),
             onPressed: _openFilterSheet,
           ),
@@ -63,17 +68,44 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: TextField(
+                controller: _search,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Search memories',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: searching
+                      ? IconButton(
+                          tooltip: 'Clear search',
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () {
+                            _search.clear();
+                            ref.read(searchQueryProvider.notifier).clear();
+                          },
+                        )
+                      : null,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (value) =>
+                    ref.read(searchQueryProvider.notifier).set(value),
+              ),
+            ),
             if (!filter.isEmpty) _FilterChips(filter: filter),
             Expanded(
-              child: async.when(
-                data: (state) => _buildList(state, filter),
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (e, _) => _ErrorState(
-                  message: '$e',
-                  onRetry: () => ref.invalidate(timelineControllerProvider),
-                ),
-              ),
+              child: searching
+                  ? SearchResultsList(query: query)
+                  : async.when(
+                      data: (state) => _buildList(state, filter),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => _ErrorState(
+                        message: '$e',
+                        onRetry: () =>
+                            ref.invalidate(timelineControllerProvider),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -135,6 +167,127 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
     }
   }
 }
+
+class SearchResultsList extends ConsumerWidget {
+  const SearchResultsList({super.key, required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(searchControllerProvider);
+
+    ref.listen(searchControllerProvider, (_, next) {
+      if (next.hasError) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          title: const Text("Couldn't search memories"),
+          description: Text('${next.error}'),
+          autoCloseDuration: const Duration(seconds: 4),
+        );
+      }
+    });
+
+    return async.when(
+      data: (hits) {
+        if (hits.isEmpty) {
+          return _SearchEmptyState(query: query);
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 104),
+          itemCount: hits.length,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.s12),
+            child: _SearchHitCard(hit: hits[index]),
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, _) => _SearchEmptyState(query: query),
+    );
+  }
+}
+
+class _SearchHitCard extends StatelessWidget {
+  const _SearchHitCard({required this.hit});
+
+  final SearchHit hit;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => MemoryReviewDetailScreen(memory: hit.memory),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(hit.title, style: theme.textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.s8),
+          Text(
+            hit.snippet,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              Text(
+                _formatSearchDate(hit.eventDate),
+                style: theme.textTheme.labelSmall,
+              ),
+              for (final topic in hit.matchedTopics.take(4))
+                Chip(label: Text(topic)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SearchEmptyState extends StatelessWidget {
+  const _SearchEmptyState({required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 48,
+              color: AppColors.secondaryText(brightness),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No memories match "$query"',
+              style: theme.textTheme.titleMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _formatSearchDate(DateTime date) =>
+    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
 String _formatGroupDate(String iso) => iso; // backend returns YYYY-MM-DD
 
@@ -208,7 +361,9 @@ class _MemoryCard extends StatelessWidget {
               spacing: 6,
               runSpacing: 4,
               children: [
-                ...memory.emotions.take(2).map(
+                ...memory.emotions
+                    .take(2)
+                    .map(
                       (e) => Text(
                         e,
                         style: theme.textTheme.labelSmall?.copyWith(

@@ -148,4 +148,42 @@ export class MemoriesService {
 		if (!updated) throw new InternalServerErrorException("Memory not restored")
 		return updated
 	}
+
+	/**
+	 * Finds saved memories that share people/topics/places with the target,
+	 * ranked by overlap count. Uses memory metadata only (no entity graph).
+	 * Excludes the target itself, deleted, and archived memories.
+	 */
+	async related({ id, userId }: { id: string; userId: string }) {
+		const target = await this.findOne({ id, userId })
+		const tags = new Set<string>([
+			...target.people,
+			...target.topics,
+			...target.places,
+		])
+		if (tags.size === 0) return []
+
+		const candidates = await db
+			.select()
+			.from(memories)
+			.where(
+				and(
+					eq(memories.userId, userId),
+					eq(memories.status, "saved"),
+					ne(memories.id, id)
+				)
+			)
+
+		const scored = candidates
+			.map(m => {
+				const overlap = [...m.people, ...m.topics, ...m.places].filter(t =>
+					tags.has(t)
+				).length
+				return { memory: m, overlap }
+			})
+			.filter(x => x.overlap > 0)
+			.sort((a, b) => b.overlap - a.overlap)
+
+		return scored.slice(0, 10).map(x => x.memory)
+	}
 }
