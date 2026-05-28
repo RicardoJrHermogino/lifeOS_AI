@@ -50,6 +50,17 @@ class ReflectionsRepository {
     return ReflectionModel.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<ReflectionModel> update({
+    required String id,
+    required String content,
+  }) async {
+    final response = await _dio.patch<dynamic>(
+      ApiConstants.reflectionById(id),
+      data: {'content': content},
+    );
+    return ReflectionModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<ReflectionModel> submitFeedback({
     required String id,
     required String feedback,
@@ -68,7 +79,6 @@ ReflectionsRepository reflectionsRepository(Ref ref) {
 }
 
 @riverpod
-Future<ReflectionModel> todayReflection(Ref ref) async {
-  final today = DateTime.now().toIso8601String().substring(0, 10);
-  return ref.read(reflectionsRepositoryProvider).getByDate(today);
+Future<ReflectionModel> reflectionForDate(Ref ref, String date) async {
+  return ref.read(reflectionsRepositoryProvider).getByDate(date);
 }

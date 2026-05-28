@@ -20,6 +20,11 @@ class MemoriesRepository {
         .toList();
   }
 
+  Future<MemoryModel> getById(String id) async {
+    final response = await _dio.get<dynamic>(ApiConstants.memoryById(id));
+    return MemoryModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<MemoryModel> update({
     required String id,
     String? title,
