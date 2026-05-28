@@ -56,6 +56,46 @@ class NotificationService {
     await AwesomeNotifications().setListeners(onActionReceivedMethod: onAction);
   }
 
+  // ── Scheduled reminders ───────────────────────────────────────────────────
+
+  /// Fixed id for the single daily capture reminder so it can be replaced.
+  static const int dailyReminderId = 1001;
+  static const int reflectionReadyId = 2001;
+  static const int captureProcessedId = 3001;
+
+  /// Schedules (or replaces) a daily repeating capture reminder at [hour]:[minute]
+  /// local time. Persisted natively, so it survives app restarts.
+  Future<void> scheduleDailyReminder({
+    required int hour,
+    required int minute,
+  }) async {
+    await AwesomeNotifications().cancel(dailyReminderId);
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: dailyReminderId,
+        channelKey: 'basic_channel',
+        title: 'Capture your day',
+        body: 'Take a moment to record a thought for your future self.',
+        payload: const {'screen': 'capture'},
+        category: NotificationCategory.Reminder,
+        wakeUpScreen: false,
+      ),
+      schedule: NotificationCalendar(
+        hour: hour,
+        minute: minute,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        allowWhileIdle: true,
+      ),
+    );
+  }
+
+  /// Cancels the daily capture reminder, if scheduled.
+  Future<void> cancelDailyReminder() async {
+    await AwesomeNotifications().cancel(dailyReminderId);
+  }
+
   // ── Show notification ─────────────────────────────────────────────────────
 
   /// Shows a simple local notification.
@@ -71,6 +111,35 @@ class NotificationService {
         title: title,
         body: body,
         payload: payload,
+      ),
+    );
+  }
+
+  Future<void> showReflectionReady({required String date}) async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: reflectionReadyId,
+        channelKey: 'basic_channel',
+        title: 'Reflection ready',
+        body: 'Your reflection for $date is ready.',
+        payload: {'screen': 'insights', 'kind': 'reflection', 'date': date},
+        category: NotificationCategory.Reminder,
+      ),
+    );
+  }
+
+  Future<void> showCaptureProcessed({
+    required String memoryId,
+    required String title,
+  }) async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: captureProcessedId,
+        channelKey: 'basic_channel',
+        title: 'Memory ready',
+        body: title,
+        payload: {'screen': 'timeline', 'kind': 'memory', 'memoryId': memoryId},
+        category: NotificationCategory.Status,
       ),
     );
   }

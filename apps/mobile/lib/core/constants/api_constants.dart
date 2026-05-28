@@ -31,6 +31,8 @@ class ApiConstants {
       '$versionedUrl/memories/$id/archive';
   static String memoryRestore(String id) =>
       '$versionedUrl/memories/$id/restore';
+  static String memoryRelated(String id) =>
+      '$versionedUrl/memories/$id/related';
 
   // LifeOS - Timeline / Search / Ask / Reflections / Exports
   static String get timeline => '$versionedUrl/timeline';
@@ -47,4 +49,16 @@ class ApiConstants {
 
   // LifeOS - Settings
   static String get settings => '$versionedUrl/settings';
+
+  // LifeOS - Insights
+  static String get insights => '$versionedUrl/insights';
+  static String get insightGenerate => '$versionedUrl/insights/generate';
+  static String insightSave(String id) => '$versionedUrl/insights/$id/save';
+  static String insightDismiss(String id) =>
+      '$versionedUrl/insights/$id/dismiss';
+  static String insightFeedback(String id) =>
+      '$versionedUrl/insights/$id/feedback';
+
+  // Support tickets
+  static String get tickets => '$versionedUrl/tickets';
 }

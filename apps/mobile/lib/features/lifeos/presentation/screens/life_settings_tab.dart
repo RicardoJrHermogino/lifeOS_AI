@@ -5,9 +5,11 @@ import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/lifeos/data/exports_repository.dart';
+import 'package:mobile/features/support/presentation/screens/support_ticket_screen.dart';
 import 'package:mobile/features/lifeos/data/settings_repository.dart';
 import 'package:mobile/features/lifeos/presentation/providers/export_controller.dart';
 import 'package:mobile/features/lifeos/presentation/providers/settings_controller.dart';
+import 'package:mobile/services/notifications/notification_service.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
 
 class LifeSettingsTab extends ConsumerWidget {
@@ -86,12 +88,6 @@ class LifeSettingsTab extends ConsumerWidget {
               title: 'Memory control',
               children: [
                 _SettingsTile(
-                  icon: Icons.visibility_outlined,
-                  title: 'Transparent memory',
-                  subtitle: 'Review what AI extracted before it becomes memory',
-                  trailing: Switch(value: true, onChanged: (_) {}),
-                ),
-                _SettingsTile(
                   icon: Icons.download_outlined,
                   title: 'Export life data',
                   subtitle: 'Prepare memories, transcripts, and insights',
@@ -136,6 +132,22 @@ class LifeSettingsTab extends ConsumerWidget {
                   onChanged: (m) => ref
                       .read(themeControllerProvider.notifier)
                       .setThemeMode(m),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s20),
+            _SettingsSection(
+              title: 'Help',
+              children: [
+                _SettingsTile(
+                  icon: Icons.support_agent_rounded,
+                  title: 'Contact support',
+                  subtitle: 'Report an issue or ask a question',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SupportTicketScreen(),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -256,10 +268,11 @@ class _SettingsTile extends StatelessWidget {
 }
 
 Future<void> _startExport(BuildContext context, WidgetRef ref) async {
-  final messenger = ScaffoldMessenger.of(context);
   try {
     await ref.read(exportControllerProvider.notifier).request();
   } catch (e) {
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
   }
 }
@@ -327,9 +340,7 @@ class _ExportStatusCard extends ConsumerWidget {
                         : AppColors.accent(brightness),
                   ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Text(title, style: theme.textTheme.titleSmall),
-                ),
+                Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
               ],
             ),
             const SizedBox(height: 8),
@@ -352,9 +363,7 @@ class _ExportStatusCard extends ConsumerWidget {
                         ClipboardData(text: export.downloadUrl!),
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Download link copied'),
-                        ),
+                        const SnackBar(content: Text('Download link copied')),
                       );
                     },
                   ),
@@ -429,12 +438,31 @@ class _SettingsControls extends ConsumerWidget {
     WidgetRef ref,
     Map<String, dynamic> data,
   ) async {
-    final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(settingsControllerProvider.notifier).patch(data);
+      final updated = ref.read(settingsControllerProvider).value;
+      if (updated != null) await _reconcileReminder(updated);
     } catch (e) {
+      if (!context.mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(SnackBar(content: Text('Could not save: $e')));
     }
+  }
+
+  /// Keeps the local daily-reminder notification in sync with settings.
+  Future<void> _reconcileReminder(SettingsModel s) async {
+    final svc = NotificationService.instance;
+    final time = s.reminderTime;
+    if (s.dailyReminder && time != null && time.contains(':')) {
+      final parts = time.split(':');
+      final hour = int.tryParse(parts[0]);
+      final minute = int.tryParse(parts[1]);
+      if (hour != null && minute != null) {
+        await svc.scheduleDailyReminder(hour: hour, minute: minute);
+        return;
+      }
+    }
+    await svc.cancelDailyReminder();
   }
 
   @override
@@ -465,7 +493,8 @@ class _SettingsControls extends ConsumerWidget {
               _SettingsTile(
                 icon: Icons.shield_outlined,
                 title: 'AI processing',
-                subtitle: 'Allow AI to analyze captures into structured memories',
+                subtitle:
+                    'Allow AI to analyze captures into structured memories',
                 trailing: Switch(
                   value: s.aiProcessingConsent,
                   onChanged: (v) =>
@@ -669,8 +698,9 @@ class _SensitiveTopicsDialogState extends State<_SensitiveTopicsDialog> {
               for (final t in _topics)
                 Chip(
                   label: Text(t),
-                  onDeleted: () =>
-                      setState(() => _topics = _topics.where((x) => x != t).toList()),
+                  onDeleted: () => setState(
+                    () => _topics = _topics.where((x) => x != t).toList(),
+                  ),
                 ),
             ],
           ),

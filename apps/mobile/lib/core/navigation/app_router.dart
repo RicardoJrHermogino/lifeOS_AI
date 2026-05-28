@@ -10,6 +10,8 @@ import 'package:mobile/features/onboarding/presentation/screens/onboarding_scree
 
 part 'app_router.g.dart';
 
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 /// Named route paths used across the app.
 class AppRoutes {
   AppRoutes._();
@@ -40,6 +42,7 @@ GoRouter appRouter(Ref ref) {
   });
 
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     refreshListenable: refreshNotifier,

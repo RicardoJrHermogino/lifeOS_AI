@@ -6,6 +6,7 @@ import { memories, rawCaptures } from "@repo/db/schema"
 
 import { type AiService } from "@/common/ai/ai.service"
 import { db } from "@/common/database/database.client"
+import { getEffectiveSettings } from "@/common/settings/user-settings"
 import { env } from "@/config/env.config"
 
 import type { ExtractionJob } from "../jobs.types"
@@ -20,6 +21,19 @@ export function startExtractionWorker(ai: AiService): Worker | null {
 		async job => {
 			const { captureId, userId } = job.data
 			logger.log(`Extracting memory for capture ${captureId}`)
+
+			// Consent gate: skip AI extraction if the user disabled AI processing.
+			const settings = await getEffectiveSettings(userId)
+			if (!settings.aiProcessingConsent) {
+				logger.log(
+					`Skipping extraction for ${captureId}: AI processing consent disabled`
+				)
+				await db
+					.update(rawCaptures)
+					.set({ status: "done", updatedAt: new Date() })
+					.where(and(eq(rawCaptures.id, captureId), eq(rawCaptures.userId, userId)))
+				return
+			}
 
 			await db
 				.update(rawCaptures)
@@ -43,7 +57,9 @@ export function startExtractionWorker(ai: AiService): Worker | null {
 				throw new Error(`Capture ${captureId} has no source text`)
 			}
 
-			const extracted = await ai.extractMemory(sourceText)
+			const extracted = await ai.extractMemory(sourceText, {
+				sensitiveTopics: settings.sensitiveTopics,
+			})
 			const embedding = await ai.embed(`${extracted.title}\n${extracted.summary}`)
 
 			const [existing] = await db

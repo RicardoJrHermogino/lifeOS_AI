@@ -25,6 +25,14 @@ class MemoriesRepository {
     return MemoryModel.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<List<MemoryModel>> related(String id) async {
+    final response = await _dio.get<dynamic>(ApiConstants.memoryRelated(id));
+    final list = response.data as List? ?? const [];
+    return list
+        .map((e) => MemoryModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<MemoryModel> update({
     required String id,
     String? title,

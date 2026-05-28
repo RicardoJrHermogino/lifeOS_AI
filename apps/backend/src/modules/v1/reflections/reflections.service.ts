@@ -9,6 +9,7 @@ import { memories, reflections } from "@repo/db/schema"
 
 import { AiService } from "@/common/ai/ai.service"
 import { db } from "@/common/database/database.client"
+import { getEffectiveSettings } from "@/common/settings/user-settings"
 import { type V1Inputs } from "@/config/contract-types"
 
 type UpdateReflectionInput = V1Inputs["reflection"]["update"]
@@ -35,6 +36,24 @@ export class ReflectionsService {
 			.where(and(eq(reflections.userId, userId), eq(reflections.date, date)))
 		if (existing) return existing
 
+		const settings = await getEffectiveSettings(userId)
+
+		// Consent gate: do not run AI generation when the user disabled it.
+		if (!settings.aiProcessingConsent) {
+			const [created] = await db
+				.insert(reflections)
+				.values({
+					userId,
+					date,
+					content:
+						"AI reflections are turned off. Enable AI processing in Settings to generate daily reflections.",
+					sourceMemoryIds: [],
+				})
+				.returning()
+			if (!created) throw new InternalServerErrorException("Reflection not created")
+			return created
+		}
+
 		const { start, end } = dayBounds(date)
 		const todays = await db
 			.select()
@@ -54,7 +73,8 @@ export class ReflectionsService {
 				title: m.title,
 				summary: m.summary,
 				eventDate: m.eventDate,
-			}))
+			})),
+			{ tone: settings.reflectionTone, personalize: settings.aiPersonalization }
 		)
 
 		const [created] = await db

@@ -52,4 +52,11 @@ export class MemoriesController {
 			return this.memoriesService.restore({ id: input.id, userId: session.user.id })
 		})
 	}
+
+	@Implement(v1.memory.related)
+	async relatedMemories(@Session() session: UserSession) {
+		return implement(v1.memory.related).handler(async ({ input }) => {
+			return this.memoriesService.related({ id: input.id, userId: session.user.id })
+		})
+	}
 }

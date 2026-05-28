@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
 import 'package:mobile/features/lifeos/data/captures_repository.dart';
+import 'package:mobile/features/lifeos/data/memories_repository.dart';
 import 'package:mobile/features/lifeos/data/models/capture_model.dart';
 import 'package:mobile/features/lifeos/data/models/memory_model.dart';
 import 'package:mobile/features/lifeos/presentation/providers/memories_provider.dart';
@@ -69,19 +70,27 @@ class _MemoryReviewDetailScreenState
 
   bool get _isCandidate => widget.memory.status == 'candidate';
 
-  Future<void> _run(Future<void> Function() action, String successMessage) async {
+  Future<void> _run(
+    Future<void> Function() action,
+    String successMessage,
+  ) async {
     if (_busy) return;
     setState(() => _busy = true);
-    final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
     try {
       await action();
+      if (!mounted) return;
       ref.invalidate(timelineControllerProvider);
+      final messenger = ScaffoldMessenger.of(context);
+      final navigator = Navigator.of(context);
       messenger.showSnackBar(SnackBar(content: Text(successMessage)));
       if (navigator.canPop()) navigator.pop();
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Something went wrong: $e')));
-      if (mounted) setState(() => _busy = false);
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Something went wrong: $e')),
+      );
+      setState(() => _busy = false);
     }
   }
 
@@ -157,9 +166,7 @@ class _MemoryReviewDetailScreenState
     final m = widget.memory;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isCandidate ? 'Review memory' : 'Memory'),
-      ),
+      appBar: AppBar(title: Text(_isCandidate ? 'Review memory' : 'Memory')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -251,6 +258,8 @@ class _MemoryReviewDetailScreenState
               values: _actions,
               onChanged: (v) => setState(() => _actions = v),
             ),
+            const SizedBox(height: 8),
+            _RelatedMemories(memoryId: m.id),
             const SizedBox(height: 24),
             AppButton(
               onPressed: _busy ? null : _save,
@@ -270,7 +279,9 @@ class _MemoryReviewDetailScreenState
                 style: TextButton.styleFrom(
                   foregroundColor: theme.colorScheme.error,
                 ),
-                child: Text(_isCandidate ? 'Discard candidate' : 'Delete memory'),
+                child: Text(
+                  _isCandidate ? 'Discard candidate' : 'Delete memory',
+                ),
               ),
             ),
           ],
@@ -330,7 +341,9 @@ class _SourceCardState extends ConsumerState<_SourceCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionHeader(
-              title: capture.type == 'voice' ? 'Original transcript' : 'Original capture',
+              title: capture.type == 'voice'
+                  ? 'Original transcript'
+                  : 'Original capture',
             ),
             AppCard(
               padding: const EdgeInsets.all(16),
@@ -393,17 +406,20 @@ class _SourceCardState extends ConsumerState<_SourceCard> {
     if (result == null || result.isEmpty || result == current) return;
     if (!mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     try {
       await ref
           .read(capturesRepositoryProvider)
           .patchTranscript(id: capture.id, transcript: result);
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         const SnackBar(
           content: Text('Transcript saved. Re-extracting memory…'),
         ),
       );
     } catch (e) {
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(content: Text('Could not save transcript: $e')),
       );
@@ -481,6 +497,91 @@ class _ConfidenceHint extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Shows saved memories related to this one (shared people/topics/places).
+class _RelatedMemories extends ConsumerStatefulWidget {
+  const _RelatedMemories({required this.memoryId});
+
+  final String memoryId;
+
+  @override
+  ConsumerState<_RelatedMemories> createState() => _RelatedMemoriesState();
+}
+
+class _RelatedMemoriesState extends ConsumerState<_RelatedMemories> {
+  Future<List<MemoryModel>>? _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = ref.read(memoriesRepositoryProvider).related(widget.memoryId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+
+    return FutureBuilder<List<MemoryModel>>(
+      future: _future,
+      builder: (context, snapshot) {
+        final items = snapshot.data ?? const <MemoryModel>[];
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            items.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionHeader(title: 'Related memories'),
+            for (final m in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: AppCard(
+                  padding: const EdgeInsets.all(14),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => MemoryReviewDetailScreen(memory: m),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              m.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              m.summary,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.secondaryText(brightness),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.secondaryText(brightness),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
