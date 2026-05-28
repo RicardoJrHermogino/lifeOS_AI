@@ -104,7 +104,10 @@
       "Read(//c/Users/thanbags/.traycer/yolo_artifacts/**)",
       "PowerShell(Get-NetTCPConnection *)",
       "PowerShell(Remove-Item *)",
-      "Bash(pnpm dev *)"
+      "Bash(pnpm dev *)",
+      "Bash(pnpm -F @repo/theme typecheck)",
+      "Bash(pnpm -F @repo/web typecheck)",
+      "Bash(flutter analyze *)"
     ]
   }
 }

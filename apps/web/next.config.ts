@@ -17,6 +17,7 @@ const config: NextConfig = {
 		"@repo/backend",
 		"@repo/contracts",
 		"@repo/db",
+		"@repo/theme",
 		"@t3-oss/env-core",
 		"@t3-oss/env-nextjs",
 	],

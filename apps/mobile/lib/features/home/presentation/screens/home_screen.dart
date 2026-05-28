@@ -9,6 +9,9 @@ import 'package:mobile/features/lifeos/presentation/screens/insights_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/life_settings_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/timeline_tab.dart';
 
+// ─── Void Intelligence accent ────────────────────────────────────────────────
+const _kAccent = Color(0xFF3D5AF1); // Electric Blue — same in both modes
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,17 +22,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
+  static const _tabs = <_TabSpec>[
+    _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
+    _TabSpec(icon: Icons.timeline_rounded, label: 'Timeline'),
+    _TabSpec(icon: Icons.search_rounded, label: 'Ask'), // orb slot
+    _TabSpec(icon: Icons.auto_awesome_rounded, label: 'Insights'),
+    _TabSpec(icon: Icons.shield_outlined, label: 'Privacy'),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
-    final tabs = <_TabSpec>[
-      const _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
-      const _TabSpec(icon: Icons.timeline_rounded, label: 'Timeline'),
-      const _TabSpec(icon: Icons.search_rounded, label: 'Ask'),
-      const _TabSpec(icon: Icons.auto_awesome_rounded, label: 'Insights'),
-      const _TabSpec(icon: Icons.shield_outlined, label: 'Privacy'),
-    ];
+    final brightness = Theme.of(context).brightness;
 
     return Container(
       decoration: BoxDecoration(
@@ -50,21 +53,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           Positioned(
-            left: 14,
-            right: 14,
-            bottom: 12,
-            child: SizedBox(
-              height: 88,
-              child: _GlassTabBar(
-                selectedIndex: _selectedIndex,
-                onItemSelected: (index) {
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                tabs: tabs,
-                brightness: brightness,
-              ),
+            left: 16,
+            right: 16,
+            bottom: 14,
+            child: _LiquidGlassTabBar(
+              selectedIndex: _selectedIndex,
+              onItemSelected: (i) => setState(() => _selectedIndex = i),
+              tabs: _tabs,
+              brightness: brightness,
             ),
           ),
         ],
@@ -73,14 +69,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
+// ─── Tab spec ────────────────────────────────────────────────────────────────
+
 class _TabSpec {
   const _TabSpec({required this.icon, required this.label});
   final IconData icon;
   final String label;
 }
 
-class _GlassTabBar extends StatelessWidget {
-  const _GlassTabBar({
+// ─── Main tab bar ─────────────────────────────────────────────────────────────
+
+class _LiquidGlassTabBar extends StatelessWidget {
+  const _LiquidGlassTabBar({
     required this.selectedIndex,
     required this.onItemSelected,
     required this.tabs,
@@ -94,417 +94,301 @@ class _GlassTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = brightness == Brightness.dark
-        ? AppColors.accent(brightness).withValues(alpha: 0.92)
-        : AppColors.accent(brightness);
-    final inactiveColor = brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.84)
-        : Colors.black.withValues(alpha: 0.86);
-    final glassBorder = Colors.white.withValues(
-      alpha: brightness == Brightness.dark ? 0.22 : 0.35,
-    );
-    final glassFill = Colors.white.withValues(
-      alpha: brightness == Brightness.dark ? 0.10 : 0.18,
-    );
-    final glassTop = Colors.white.withValues(
-      alpha: brightness == Brightness.dark ? 0.24 : 0.40,
-    );
-    final glassBottom = Colors.black.withValues(
-      alpha: brightness == Brightness.dark ? 0.06 : 0.04,
-    );
+    // Items excluding the centre orb (index 2)
+    final pillItems = [
+      for (var i = 0; i < tabs.length; i++)
+        if (i != 2) _IndexedTab(index: i, spec: tabs[i]),
+    ];
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Container(
-            height: 68,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: brightness == Brightness.dark ? 0.07 : 0.018,
-                  ),
-                  blurRadius: 18,
-                  spreadRadius: -14,
-                  offset: const Offset(0, 16),
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: brightness == Brightness.dark ? 0.014 : 0.002,
-                  ),
-                  blurRadius: 4,
-                  spreadRadius: -5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [glassTop, glassFill, glassBottom],
-                            stops: const [0, 0.46, 1],
-                          ),
-                          border: Border.all(color: glassBorder, width: 0.4),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
+    return SizedBox(
+      height: 72,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Pill ──────────────────────────────────────────────────────────
+          Expanded(
+            child: _GlassPill(
+              brightness: brightness,
+              child: Row(
+                children: [
+                  for (final entry in pillItems)
+                    Expanded(
+                      child: _PillNavItem(
+                        icon: entry.spec.icon,
+                        label: entry.spec.label,
+                        selected: selectedIndex == entry.index,
+                        brightness: brightness,
+                        onTap: () => onItemSelected(entry.index),
                       ),
                     ),
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
-                            gradient: LinearGradient(
-                              begin: const Alignment(-1.0, -1.0),
-                              end: const Alignment(1.0, 1.0),
-                              stops: const [0.0, 0.30, 0.48, 0.62, 1.0],
-                              colors: [
-                                Colors.transparent,
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.10
-                                      : 0.22,
-                                ),
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.22
-                                      : 0.50,
-                                ),
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.08
-                                      : 0.18,
-                                ),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: IgnorePointer(
-                        child: Container(
-                          height: 18,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(999),
-                            ),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.30
-                                      : 0.55,
-                                ),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 6,
-                      ),
-                      child: Row(
-                        children: [
-                          for (final entry in _pillEntries(tabs))
-                            Expanded(
-                              child: _PillNavItem(
-                                icon: entry.tab.icon,
-                                label: entry.tab.label,
-                                selected: selectedIndex == entry.index,
-                                activeColor: activeColor,
-                                inactiveColor: inactiveColor,
-                                onTap: () => onItemSelected(entry.index),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 68,
-          height: 68,
-          child: _AskNavOrb(
-            brightness: brightness,
-            activeColor: activeColor,
-            selected: selectedIndex == 2,
-            onTap: () => onItemSelected(2),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<_PillEntry> _pillEntries(List<_TabSpec> tabs) {
-    return [
-      for (var index = 0; index < tabs.length; index++)
-        if (index != 2) _PillEntry(index: index, tab: tabs[index]),
-    ];
-  }
-}
-
-class _PillEntry {
-  const _PillEntry({required this.index, required this.tab});
-
-  final int index;
-  final _TabSpec tab;
-}
-
-class _AskNavOrb extends StatelessWidget {
-  const _AskNavOrb({
-    required this.brightness,
-    required this.activeColor,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Brightness brightness;
-  final Color activeColor;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderColor = Colors.white.withValues(
-      alpha: brightness == Brightness.dark ? 0.22 : 0.35,
-    );
-    final iconColor = brightness == Brightness.dark
-        ? (selected
-              ? AppColors.accent(brightness).withValues(alpha: 0.92)
-              : Colors.white.withValues(alpha: 0.84))
-        : (selected
-              ? AppColors.accent(brightness)
-              : Colors.black.withValues(alpha: 0.86));
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: brightness == Brightness.dark ? 0.07 : 0.018,
+          const SizedBox(width: 10),
+          // ── Orb ───────────────────────────────────────────────────────────
+          AspectRatio(
+            aspectRatio: 1,
+            child: _GlassOrb(
+              icon: tabs[2].icon,
+              label: tabs[2].label,
+              selected: selectedIndex == 2,
+              brightness: brightness,
+              onTap: () => onItemSelected(2),
             ),
-            blurRadius: 18,
-            spreadRadius: -14,
-            offset: const Offset(0, 16),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: brightness == Brightness.dark ? 0.014 : 0.002,
-            ),
-            blurRadius: 4,
-            spreadRadius: -5,
-            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Material(
-            color: Colors.transparent,
-            child: InkResponse(
-              containedInkWell: true,
-              customBorder: const CircleBorder(),
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: onTap,
-              child: AnimatedContainer(
-                duration: AppMotion.durationFast,
-                curve: AppMotion.enterCurve,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withValues(
-                        alpha: brightness == Brightness.dark ? 0.24 : 0.40,
-                      ),
-                      Colors.white.withValues(
-                        alpha: brightness == Brightness.dark ? 0.10 : 0.18,
-                      ),
-                      Colors.black.withValues(
-                        alpha: brightness == Brightness.dark ? 0.06 : 0.04,
-                      ),
-                    ],
-                  ),
-                  border: Border.all(color: borderColor, width: 0.4),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: const Alignment(-1.0, -1.0),
-                              end: const Alignment(1.0, 1.0),
-                              stops: const [0.0, 0.30, 0.48, 0.62, 1.0],
-                              colors: [
-                                Colors.transparent,
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.10
-                                      : 0.22,
-                                ),
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.22
-                                      : 0.50,
-                                ),
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.08
-                                      : 0.18,
-                                ),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: IgnorePointer(
-                        child: Container(
-                          height: 18,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(999),
-                            ),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withValues(
-                                  alpha: brightness == Brightness.dark
-                                      ? 0.30
-                                      : 0.55,
-                                ),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: AnimatedScale(
-                        duration: AppMotion.durationFast,
-                        curve: AppMotion.springCurve,
-                        scale: selected ? 1.08 : 1,
-                        child: Icon(
-                          Icons.search_rounded,
-                          semanticLabel: 'Ask',
-                          color: iconColor,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+    );
+  }
+}
+
+class _IndexedTab {
+  const _IndexedTab({required this.index, required this.spec});
+  final int index;
+  final _TabSpec spec;
+}
+
+// ─── Shared glass painter ─────────────────────────────────────────────────────
+//
+// Shared transparent blur treatment for the pill and orb.
+
+class _GlassParams {
+  const _GlassParams({
+    required this.fillOpacity,
+    required this.borderOpacity,
+    required this.shadowOpacity,
+  });
+
+  final double fillOpacity;
+  final double borderOpacity;
+  final double shadowOpacity;
+
+  static _GlassParams of(Brightness b) => b == Brightness.dark
+      ? const _GlassParams(
+          fillOpacity: 0.04,
+          borderOpacity: 0.08,
+          shadowOpacity: 0.08,
+        )
+      : const _GlassParams(
+          fillOpacity: 0.12,
+          borderOpacity: 0.10,
+          shadowOpacity: 0.02,
+        );
+}
+
+// ─── Glass pill ───────────────────────────────────────────────────────────────
+
+class _GlassPill extends StatelessWidget {
+  const _GlassPill({required this.brightness, required this.child});
+
+  final Brightness brightness;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = _GlassParams.of(brightness);
+
+    return _GlassShell(
+      borderRadius: BorderRadius.circular(999),
+      brightness: brightness,
+      params: p,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: child,
       ),
     );
   }
 }
 
-class _PillNavItem extends StatelessWidget {
-  const _PillNavItem({
+// ─── Glass orb ────────────────────────────────────────────────────────────────
+
+class _GlassOrb extends StatelessWidget {
+  const _GlassOrb({
     required this.icon,
     required this.label,
     required this.selected,
-    required this.activeColor,
-    required this.inactiveColor,
+    required this.brightness,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
-  final Color activeColor;
-  final Color inactiveColor;
+  final Brightness brightness;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final itemColor = selected ? activeColor : inactiveColor;
+    final p = _GlassParams.of(brightness);
+    final color = selected
+        ? _kAccent
+        : (brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.84)
+              : Colors.black.withValues(alpha: 0.80));
 
-    return Material(
-      color: Colors.transparent,
-      child: InkResponse(
-        containedInkWell: false,
-        borderRadius: BorderRadius.circular(999),
-        radius: 32,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: onTap,
-        child: Center(
-          child: AnimatedOpacity(
-            duration: AppMotion.durationFast,
-            opacity: selected ? 1 : 0.78,
+    return _GlassShell(
+      borderRadius: BorderRadius.circular(999),
+      brightness: brightness,
+      params: p,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: onTap,
+          child: Center(
             child: AnimatedScale(
               duration: AppMotion.durationFast,
               curve: AppMotion.springCurve,
-              scale: selected ? 1.04 : 1,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, semanticLabel: label, color: itemColor, size: 22),
-                  const SizedBox(height: 3),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: itemColor,
-                        fontSize: 10.5,
-                        fontWeight: selected
-                            ? FontWeight.w700
-                            : FontWeight.w600,
-                        height: 1,
-                        letterSpacing: 0,
-                      ),
+              scale: selected ? 1.10 : 1.0,
+              child: Icon(icon, color: color, size: 26, semanticLabel: label),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Glass shell (shared transparent blur + fill) ─────────────────────────────
+
+class _GlassShell extends StatelessWidget {
+  const _GlassShell({
+    required this.borderRadius,
+    required this.brightness,
+    required this.params,
+    required this.child,
+  });
+
+  final BorderRadius borderRadius;
+  final Brightness brightness;
+  final _GlassParams params;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = brightness == Brightness.dark;
+    final p = params;
+
+    // Slight blue tint in dark mode to stay in the Void Intelligence palette
+    final fillColor = isDark
+        ? Color.alphaBlend(
+            const Color(0xFF3D5AF1).withValues(alpha: 0.06),
+            Colors.white.withValues(alpha: p.fillOpacity),
+          )
+        : Colors.white.withValues(alpha: p.fillOpacity);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        boxShadow: [
+          // Diffuse ambient shadow — same soft look as Apple Music pill
+          BoxShadow(
+            color: Colors.black.withValues(alpha: p.shadowOpacity * 0.55),
+            blurRadius: 36,
+            spreadRadius: -8,
+            offset: const Offset(0, 14),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: p.shadowOpacity * 0.18),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: BackdropFilter(
+          // σ ≈ 28 gives the thick "liquid" blur Apple uses
+          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              // Layer 1 — base fill
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    color: fillColor,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: p.borderOpacity),
+                      width: 0.5,
                     ),
                   ),
-                ],
+                ),
               ),
+
+              // Content
+              child,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Pill nav item ────────────────────────────────────────────────────────────
+
+class _PillNavItem extends StatelessWidget {
+  const _PillNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.brightness,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final Brightness brightness;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final activeColor = _kAccent;
+    final inactiveColor = brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.84)
+        : Colors.black.withValues(alpha: 0.80);
+    final color = selected ? activeColor : inactiveColor;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: onTap,
+        child: AnimatedOpacity(
+          duration: AppMotion.durationFast,
+          opacity: selected ? 1.0 : 0.72,
+          child: AnimatedScale(
+            duration: AppMotion.durationFast,
+            curve: AppMotion.springCurve,
+            scale: selected ? 1.06 : 1.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: color, size: 22, semanticLabel: label),
+                const SizedBox(height: 3),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 10.5,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                      height: 1,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
