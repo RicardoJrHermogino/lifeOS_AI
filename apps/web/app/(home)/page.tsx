@@ -1,6 +1,7 @@
 import type { Route } from "next"
 import Link from "next/link"
 
+import { LifeOSMark } from "@/core/components/lifeos-mark"
 import { getSession } from "@/services/better-auth/auth-server"
 
 type Feature = {
@@ -76,7 +77,7 @@ export default async function Home() {
 		<>
 			<nav className="glass-nav sticky top-0 z-10 flex items-center justify-between px-6 py-5 md:px-10">
 				<Link href="/" className="flex items-center gap-2 text-base font-extrabold tracking-tight">
-					<span className="bg-primary inline-block size-2.5 rounded-full" aria-hidden />
+					<LifeOSMark className="size-7" />
 					LifeOS AI
 				</Link>
 				<div className="flex items-center gap-2">

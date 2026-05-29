@@ -54,14 +54,17 @@
 	--color-lifeos-teal: var(--lifeos-accent-teal);
 	--color-lifeos-violet: var(--lifeos-accent-violet);
 	--color-lifeos-amber: var(--lifeos-accent-amber);
+	--color-lifeos-rose: var(--lifeos-accent-rose);
 	--color-lifeos-on-primary: var(--lifeos-on-primary);
 	--color-lifeos-on-teal: var(--lifeos-on-teal);
 	--color-lifeos-on-violet: var(--lifeos-on-violet);
 	--color-lifeos-on-amber: var(--lifeos-on-amber);
+	--color-lifeos-on-rose: var(--lifeos-on-rose);
 	--color-lifeos-primary-subtle: var(--lifeos-primary-subtle);
 	--color-lifeos-teal-subtle: var(--lifeos-teal-subtle);
 	--color-lifeos-violet-subtle: var(--lifeos-violet-subtle);
 	--color-lifeos-amber-subtle: var(--lifeos-amber-subtle);
+	--color-lifeos-rose-subtle: var(--lifeos-rose-subtle);
 	--color-lifeos-success: var(--lifeos-success);
 	--color-lifeos-warning: var(--lifeos-warning);
 	--color-lifeos-danger: var(--lifeos-danger);
@@ -87,37 +90,40 @@
 	--radius: 1.25rem;
 
 	/* Void raw tokens — light */
-	--lifeos-bg-app: #f7f8fd;
-	--lifeos-bg-surface: #eef0fb;
-	--lifeos-bg-elevated: #ffffff;
-	--lifeos-bg-overlay: #e2e6fa;
-	--lifeos-border-subtle: #d8dcf5;
-	--lifeos-border-default: #c4caee;
-	--lifeos-border-strong: #3d5af1;
-	--lifeos-text-primary: #1a2050;
-	--lifeos-text-secondary: #5a6490;
-	--lifeos-text-muted: #9099c0;
-	--lifeos-text-inverse: #ffffff;
+	--lifeos-bg-app: #f1efe8;
+	--lifeos-bg-surface: #eeedfe;
+	--lifeos-bg-elevated: #f1efe8;
+	--lifeos-bg-overlay: #e1f5ee;
+	--lifeos-border-subtle: color-mix(in srgb, #d3d1c7 70%, transparent);
+	--lifeos-border-default: #d3d1c7;
+	--lifeos-border-strong: #3b3580;
+	--lifeos-text-primary: #2c2c2a;
+	--lifeos-text-secondary: color-mix(in srgb, #2c2c2a 68%, transparent);
+	--lifeos-text-muted: color-mix(in srgb, #2c2c2a 46%, transparent);
+	--lifeos-text-inverse: #f1efe8;
 
 	/* Void raw tokens — shared accents (mode-agnostic) */
-	--lifeos-accent-primary: #3d5af1;
-	--lifeos-accent-teal: #5eead4;
-	--lifeos-accent-violet: #a78bfa;
-	--lifeos-accent-amber: #f59e0b;
-	--lifeos-on-primary: #ffffff;
-	--lifeos-on-teal: #065f46;
-	--lifeos-on-violet: #3b0764;
-	--lifeos-on-amber: #451a03;
-	--lifeos-success: #10b981;
-	--lifeos-warning: #f59e0b;
-	--lifeos-danger: #ef4444;
-	--lifeos-info: #3d5af1;
+	--lifeos-accent-primary: #3b3580;
+	--lifeos-accent-teal: #0f6e56;
+	--lifeos-accent-violet: #eeedfe;
+	--lifeos-accent-amber: #ef9f27;
+	--lifeos-accent-rose: #f4c0d1;
+	--lifeos-on-primary: #f1efe8;
+	--lifeos-on-teal: #f1efe8;
+	--lifeos-on-violet: #3b3580;
+	--lifeos-on-amber: #2c2c2a;
+	--lifeos-on-rose: #2c2c2a;
+	--lifeos-success: #0f6e56;
+	--lifeos-warning: #ef9f27;
+	--lifeos-danger: #f4c0d1;
+	--lifeos-info: #3b3580;
 
 	/* Void raw tokens — chip backgrounds (mode-dependent, light values) */
-	--lifeos-primary-subtle: #dde2fb;
-	--lifeos-teal-subtle: #d0f4ec;
-	--lifeos-violet-subtle: #ede8ff;
-	--lifeos-amber-subtle: #fef3c7;
+	--lifeos-primary-subtle: #eeedfe;
+	--lifeos-teal-subtle: #e1f5ee;
+	--lifeos-violet-subtle: #eeedfe;
+	--lifeos-amber-subtle: color-mix(in srgb, #ef9f27 24%, #f1efe8);
+	--lifeos-rose-subtle: color-mix(in srgb, #f4c0d1 54%, #f1efe8);
 
 	/* shadcn/ui semantic mapping — light */
 	--background: var(--lifeos-bg-app);
@@ -160,23 +166,24 @@
  */
 .dark {
 	/* Void raw tokens — dark */
-	--lifeos-bg-app: #0d0f1a;
-	--lifeos-bg-surface: #141829;
-	--lifeos-bg-elevated: #1f2744;
-	--lifeos-bg-overlay: #2d3a6a;
-	--lifeos-border-subtle: #1f2744;
-	--lifeos-border-default: #2d3a6a;
-	--lifeos-border-strong: #3d5af1;
-	--lifeos-text-primary: #c8d0f0;
-	--lifeos-text-secondary: #7880a0;
-	--lifeos-text-muted: #4a5270;
-	--lifeos-text-inverse: #0d0f1a;
+	--lifeos-bg-app: #2c2c2a;
+	--lifeos-bg-surface: color-mix(in srgb, #f1efe8 4%, #2c2c2a);
+	--lifeos-bg-elevated: color-mix(in srgb, #f1efe8 7%, #2c2c2a);
+	--lifeos-bg-overlay: color-mix(in srgb, #e1f5ee 12%, #2c2c2a);
+	--lifeos-border-subtle: color-mix(in srgb, #d3d1c7 12%, transparent);
+	--lifeos-border-default: color-mix(in srgb, #d3d1c7 18%, transparent);
+	--lifeos-border-strong: #3b3580;
+	--lifeos-text-primary: #f1efe8;
+	--lifeos-text-secondary: color-mix(in srgb, #d3d1c7 72%, transparent);
+	--lifeos-text-muted: color-mix(in srgb, #d3d1c7 48%, transparent);
+	--lifeos-text-inverse: #2c2c2a;
 
 	/* Void raw tokens — chip backgrounds (mode-dependent, dark values) */
-	--lifeos-primary-subtle: #1a2460;
-	--lifeos-teal-subtle: #0a2e28;
-	--lifeos-violet-subtle: #1e1540;
-	--lifeos-amber-subtle: #451a03;
+	--lifeos-primary-subtle: color-mix(in srgb, #eeedfe 14%, transparent);
+	--lifeos-teal-subtle: color-mix(in srgb, #e1f5ee 14%, transparent);
+	--lifeos-violet-subtle: color-mix(in srgb, #eeedfe 14%, transparent);
+	--lifeos-amber-subtle: color-mix(in srgb, #ef9f27 16%, transparent);
+	--lifeos-rose-subtle: color-mix(in srgb, #f4c0d1 16%, transparent);
 
 	/* shadcn/ui semantic mapping — dark */
 	--background: var(--lifeos-bg-app);

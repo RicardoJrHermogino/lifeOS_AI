@@ -168,7 +168,7 @@ class _InsightsTabState extends ConsumerState<InsightsTab> {
                   ref.invalidate(insightsControllerProvider);
                 },
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 124),
                   children: [
                     ..._reflectionSection(theme, async),
                     const SizedBox(height: AppSpacing.s24),

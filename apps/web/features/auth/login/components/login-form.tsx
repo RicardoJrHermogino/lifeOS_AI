@@ -10,16 +10,20 @@ import {
 	FieldError,
 	FieldGroup,
 	FieldLabel,
-	FieldSeparator,
 } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 import { cn } from "@/core/lib/utils"
 import { PasswordInput } from "@/features/auth/components/password-input"
-import { SocialLoginButtons } from "@/features/auth/components/social-login-buttons"
-import { TermsPrivacyNote } from "@/features/auth/components/terms-privacy-note"
 
 import { useLoginMutation } from "../api/login.hooks"
 import { LoginSchema } from "../api/login.schema"
+
+const memoryTiles = [
+	"bg-lifeos-primary-subtle text-lifeos-primary",
+	"bg-lifeos-teal-subtle text-lifeos-on-teal",
+	"bg-lifeos-amber-subtle text-lifeos-on-amber",
+	"bg-lifeos-rose-subtle text-lifeos-on-rose",
+]
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
 	const { mutateAsync: login, isPending, isError, error } = useLoginMutation()
@@ -39,24 +43,28 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
 	return (
 		<div
-			className={cn("mx-auto flex w-full max-w-md flex-col items-center gap-5", className)}
+			className={cn(
+				"mx-auto flex w-full max-w-[22rem] flex-col items-center md:max-w-[24rem] md:-rotate-6",
+				className
+			)}
 			{...props}
 		>
-			<div className="border-border bg-card text-card-foreground shadow-primary/5 w-full rounded-[2rem] border p-10 shadow-xl">
+			<div className="border-lifeos-border-subtle bg-card text-card-foreground shadow-primary/10 w-full rounded-[2rem] border p-7 shadow-2xl sm:p-9 md:transition-transform md:hover:rotate-3 md:hover:scale-[1.01]">
 				<form
 					onSubmit={e => {
 						e.preventDefault()
 						form.handleSubmit()
 					}}
 				>
-					<FieldGroup className="gap-6">
-						<div className="flex flex-col items-center gap-1 text-center">
-							<h1 className="text-2xl font-extrabold tracking-tight">Welcome back</h1>
-							<p className="text-muted-foreground text-sm">Sign in to your LifeOS AI account</p>
+					<FieldGroup className="gap-4">
+						<div className="flex flex-col items-center pb-1 text-center">
+							<h1 className="max-w-56 text-2xl leading-tight font-extrabold">
+								Welcome Back to LifeOS
+							</h1>
 						</div>
 
 						{isError && (
-							<div className="bg-destructive/10 text-destructive rounded-2xl p-3 text-sm">
+							<div className="bg-destructive/10 text-destructive rounded-2xl px-3 py-2 text-sm">
 								{error instanceof Error ? error.message : "An unexpected error occurred"}
 							</div>
 						)}
@@ -66,8 +74,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 							children={field => {
 								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>Email address</FieldLabel>
+									<Field data-invalid={isInvalid} className="gap-1">
+										<FieldLabel
+											htmlFor={field.name}
+											className="text-muted-foreground pl-3 text-[0.7rem] font-medium"
+										>
+											E-mail
+										</FieldLabel>
 										<Input
 											id={field.name}
 											name={field.name}
@@ -76,11 +89,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 											onBlur={field.handleBlur}
 											onChange={e => field.handleChange(e.target.value)}
 											aria-invalid={isInvalid}
-											placeholder="you@example.com"
+											aria-label="Email"
+											placeholder="hello@lifeos.ai"
 											autoComplete="email"
 											required
 											disabled={isPending}
 											data-element-id="login-email"
+											className="border-lifeos-border-subtle bg-card h-11 rounded-full px-5 shadow-sm"
 										/>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
@@ -93,14 +108,19 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 							children={field => {
 								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 								return (
-									<Field data-invalid={isInvalid}>
+									<Field data-invalid={isInvalid} className="gap-1">
 										<div className="flex items-center">
-											<FieldLabel htmlFor={field.name}>Password</FieldLabel>
+											<FieldLabel
+												htmlFor={field.name}
+												className="text-muted-foreground pl-3 text-[0.7rem] font-medium"
+											>
+												Password
+											</FieldLabel>
 											<Link
 												href="#"
 												className={cn(
 													buttonVariants({ size: "sm", variant: "link" }),
-													"text-primary ml-auto h-auto font-medium"
+													"text-muted-foreground hover:text-primary ml-auto h-auto px-0 text-[0.7rem] font-medium no-underline hover:no-underline"
 												)}
 												data-element-id="forgot-password"
 											>
@@ -118,6 +138,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 											autoComplete="current-password"
 											disabled={isPending}
 											data-element-id="login-password"
+											className="[&>input]:border-lifeos-border-subtle [&>input]:bg-card [&>input]:h-11 [&>input]:rounded-full [&>input]:px-5 [&>input]:shadow-sm"
 										/>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
@@ -129,36 +150,45 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 							<Button
 								type="submit"
 								disabled={isPending}
-								className="h-12 w-full rounded-full text-sm font-bold hover:cursor-pointer"
+								aria-label="Login"
+								className="mt-2 h-12 w-full rounded-full bg-foreground text-sm font-bold text-background shadow-lg shadow-primary/15 hover:bg-foreground/90 hover:cursor-pointer"
 								data-element-id="login-submit"
 							>
-								{isPending ? "Signing in..." : "Sign in"}
+								{isPending ? "Signing in..." : "Log in"}
 							</Button>
 						</Field>
 
-						<FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-							or continue with
-						</FieldSeparator>
-
-						<SocialLoginButtons action="login" />
+						<div className="flex justify-center gap-3 py-2" aria-hidden>
+							{memoryTiles.map((tile, index) => (
+								<div
+									key={tile}
+									className={cn(
+										"border-lifeos-border-subtle flex size-14 items-center justify-center rounded-xl border shadow-sm",
+										index % 2 === 0 ? "rotate-[-4deg]" : "rotate-3",
+										tile
+									)}
+								>
+									<span className="bg-card/70 size-7 rounded-full" />
+								</div>
+							))}
+						</div>
 
 						<FieldDescription className="text-center">
-							Don&apos;t have an account?{" "}
+							New to LifeOS?{" "}
 							<Link
 								className={cn(
 									buttonVariants({ variant: "link" }),
-									"text-primary h-auto px-0 font-semibold"
+									"text-foreground h-auto px-0 font-semibold underline underline-offset-4"
 								)}
 								href="/register"
 								data-element-id="go-to-register"
 							>
-								Create one
+								Sign up
 							</Link>
 						</FieldDescription>
 					</FieldGroup>
 				</form>
 			</div>
-			<TermsPrivacyNote />
 		</div>
 	)
 }

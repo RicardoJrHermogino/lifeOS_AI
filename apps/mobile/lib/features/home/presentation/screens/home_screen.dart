@@ -10,8 +10,8 @@ import 'package:mobile/features/lifeos/presentation/screens/insights_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/life_settings_tab.dart';
 import 'package:mobile/features/lifeos/presentation/screens/timeline_tab.dart';
 
-// ─── Void Intelligence accent ────────────────────────────────────────────────
-const _kAccent = Color(0xFF3D5AF1); // Electric Blue — same in both modes
+const _kBottomNavHeight = 72.0;
+const _kBottomNavOffset = 14.0;
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -19,7 +19,7 @@ class HomeScreen extends ConsumerWidget {
   static const _tabs = <_TabSpec>[
     _TabSpec(icon: Icons.mic_none_rounded, label: 'Capture'),
     _TabSpec(icon: Icons.timeline_rounded, label: 'Timeline'),
-    _TabSpec(icon: Icons.search_rounded, label: 'Ask'), // orb slot
+    _TabSpec(icon: Icons.search_rounded, label: 'Ask'),
     _TabSpec(icon: Icons.auto_awesome_rounded, label: 'Insights'),
     _TabSpec(icon: Icons.shield_outlined, label: 'Privacy'),
   ];
@@ -50,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
           Positioned(
             left: 16,
             right: 16,
-            bottom: 14,
+            bottom: _kBottomNavOffset,
             child: _LiquidGlassTabBar(
               selectedIndex: selectedIndex,
               onItemSelected: (i) =>
@@ -65,15 +65,12 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-// ─── Tab spec ────────────────────────────────────────────────────────────────
-
 class _TabSpec {
   const _TabSpec({required this.icon, required this.label});
+
   final IconData icon;
   final String label;
 }
-
-// ─── Main tab bar ─────────────────────────────────────────────────────────────
 
 class _LiquidGlassTabBar extends StatelessWidget {
   const _LiquidGlassTabBar({
@@ -90,18 +87,16 @@ class _LiquidGlassTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Items excluding the centre orb (index 2)
     final pillItems = [
       for (var i = 0; i < tabs.length; i++)
         if (i != 2) _IndexedTab(index: i, spec: tabs[i]),
     ];
 
     return SizedBox(
-      height: 72,
+      height: _kBottomNavHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Pill ──────────────────────────────────────────────────────────
           Expanded(
             child: _GlassPill(
               brightness: brightness,
@@ -122,7 +117,6 @@ class _LiquidGlassTabBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // ── Orb ───────────────────────────────────────────────────────────
           AspectRatio(
             aspectRatio: 1,
             child: _GlassOrb(
@@ -141,13 +135,10 @@ class _LiquidGlassTabBar extends StatelessWidget {
 
 class _IndexedTab {
   const _IndexedTab({required this.index, required this.spec});
+
   final int index;
   final _TabSpec spec;
 }
-
-// ─── Shared glass painter ─────────────────────────────────────────────────────
-//
-// Shared transparent blur treatment for the pill and orb.
 
 class _GlassParams {
   const _GlassParams({
@@ -162,18 +153,16 @@ class _GlassParams {
 
   static _GlassParams of(Brightness b) => b == Brightness.dark
       ? const _GlassParams(
-          fillOpacity: 0.04,
-          borderOpacity: 0.08,
-          shadowOpacity: 0.08,
+          fillOpacity: 0.02,
+          borderOpacity: 0.05,
+          shadowOpacity: 0.05,
         )
       : const _GlassParams(
-          fillOpacity: 0.12,
-          borderOpacity: 0.10,
-          shadowOpacity: 0.02,
+          fillOpacity: 0.06,
+          borderOpacity: 0.06,
+          shadowOpacity: 0.015,
         );
 }
-
-// ─── Glass pill ───────────────────────────────────────────────────────────────
 
 class _GlassPill extends StatelessWidget {
   const _GlassPill({required this.brightness, required this.child});
@@ -197,8 +186,6 @@ class _GlassPill extends StatelessWidget {
   }
 }
 
-// ─── Glass orb ────────────────────────────────────────────────────────────────
-
 class _GlassOrb extends StatelessWidget {
   const _GlassOrb({
     required this.icon,
@@ -218,10 +205,10 @@ class _GlassOrb extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = _GlassParams.of(brightness);
     final color = selected
-        ? _kAccent
+        ? AppColors.accent(brightness)
         : (brightness == Brightness.dark
-              ? Colors.white.withValues(alpha: 0.84)
-              : Colors.black.withValues(alpha: 0.80));
+              ? Colors.white
+              : Colors.black);
 
     return _GlassShell(
       borderRadius: BorderRadius.circular(999),
@@ -248,8 +235,6 @@ class _GlassOrb extends StatelessWidget {
   }
 }
 
-// ─── Glass shell (shared transparent blur + fill) ─────────────────────────────
-
 class _GlassShell extends StatelessWidget {
   const _GlassShell({
     required this.borderRadius,
@@ -268,10 +253,9 @@ class _GlassShell extends StatelessWidget {
     final isDark = brightness == Brightness.dark;
     final p = params;
 
-    // Slight blue tint in dark mode to stay in the Void Intelligence palette
     final fillColor = isDark
         ? Color.alphaBlend(
-            const Color(0xFF3D5AF1).withValues(alpha: 0.06),
+            AppColors.softIndigo.withValues(alpha: 0.025),
             Colors.white.withValues(alpha: p.fillOpacity),
           )
         : Colors.white.withValues(alpha: p.fillOpacity);
@@ -280,7 +264,6 @@ class _GlassShell extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: borderRadius,
         boxShadow: [
-          // Diffuse ambient shadow — same soft look as Apple Music pill
           BoxShadow(
             color: Colors.black.withValues(alpha: p.shadowOpacity * 0.55),
             blurRadius: 36,
@@ -297,12 +280,10 @@ class _GlassShell extends StatelessWidget {
       child: ClipRRect(
         borderRadius: borderRadius,
         child: BackdropFilter(
-          // σ ≈ 28 gives the thick "liquid" blur Apple uses
           filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
           child: Stack(
             fit: StackFit.passthrough,
             children: [
-              // Layer 1 — base fill
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -315,8 +296,6 @@ class _GlassShell extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // Content
               child,
             ],
           ),
@@ -325,8 +304,6 @@ class _GlassShell extends StatelessWidget {
     );
   }
 }
-
-// ─── Pill nav item ────────────────────────────────────────────────────────────
 
 class _PillNavItem extends StatelessWidget {
   const _PillNavItem({
@@ -345,10 +322,10 @@ class _PillNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = _kAccent;
+    final activeColor = AppColors.accent(brightness);
     final inactiveColor = brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.84)
-        : Colors.black.withValues(alpha: 0.80);
+        ? Colors.white
+        : Colors.black;
     final color = selected ? activeColor : inactiveColor;
 
     return Material(

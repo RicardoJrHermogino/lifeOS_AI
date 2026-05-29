@@ -4,6 +4,7 @@ import type { Route } from "next"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
+import { LifeOSMark } from "@/core/components/lifeos-mark"
 import { cn } from "@/core/lib/utils"
 import { authClient } from "@/services/better-auth/auth-client"
 
@@ -53,7 +54,7 @@ export function SiteSidebar({ userName, userEmail }: SiteSidebarProps) {
 				href="/"
 				className="text-sidebar-accent-foreground mb-3 flex items-center gap-2 px-3 py-2 text-base font-extrabold tracking-tight"
 			>
-				<span className="bg-sidebar-primary inline-block size-2 rounded-full" aria-hidden />
+				<LifeOSMark className="size-7" />
 				LifeOS AI
 			</Link>
 			{PRIMARY_NAV.map(item => {

@@ -147,7 +147,7 @@ class FlexThemeConfig {
     final primaryText = isDark
         ? AppColors.primaryTextDark
         : AppColors.primaryText;
-    final onPrimary = isDark ? AppColors.backgroundDark : AppColors.surface;
+    final onPrimary = AppColors.warmStone;
     final secondaryText = isDark
         ? AppColors.secondaryTextDarkColor
         : AppColors.secondaryTextLight;
@@ -164,11 +164,23 @@ class FlexThemeConfig {
       onPrimary: onAccent,
       secondary: accent,
       onSecondary: onAccent,
+      tertiary: AppColors.deepTeal,
+      onTertiary: AppColors.warmStone,
       surface: surfaceColor,
       onSurface: primaryText,
       onSurfaceVariant: secondaryText,
       outline: outline,
       outlineVariant: outline,
+      primaryContainer: AppColors.accentTint(brightness),
+      onPrimaryContainer: AppColors.midnightIndigo,
+      secondaryContainer: AppColors.successTint(brightness),
+      onSecondaryContainer: AppColors.deepTeal,
+      tertiaryContainer: AppColors.warningTint(brightness),
+      onTertiaryContainer: AppColors.charcoal,
+      error: AppColors.blushRose,
+      onError: AppColors.charcoal,
+      errorContainer: AppColors.emotionTint(brightness),
+      onErrorContainer: isDark ? AppColors.warmStone : AppColors.charcoal,
       surfaceContainerLowest: backgroundColor,
       surfaceContainerLow: elevated,
       surfaceContainer: surfaceColor,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:mobile/features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'package:mobile/shared/widgets/lifeos_mark.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
@@ -17,6 +18,10 @@ class OnboardingScreen extends ConsumerWidget {
         _buildPage(
           theme: theme,
           icon: Icons.memory_rounded,
+          brandMark: LifeOsMark(
+            size: 54,
+            onDarkBackground: theme.brightness == Brightness.dark,
+          ),
           gradientColors: [colorScheme.primary, colorScheme.tertiary],
           title: 'Welcome to LifeOS AI',
           body:
@@ -100,6 +105,7 @@ class OnboardingScreen extends ConsumerWidget {
   PageViewModel _buildPage({
     required ThemeData theme,
     required IconData icon,
+    Widget? brandMark,
     required List<Color> gradientColors,
     required String title,
     required String body,
@@ -158,11 +164,13 @@ class OnboardingScreen extends ConsumerWidget {
                         color: theme.colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        icon,
-                        size: 32,
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                      child:
+                          brandMark ??
+                          Icon(
+                            icon,
+                            size: 32,
+                            color: theme.colorScheme.onPrimary,
+                          ),
                     ),
                   ),
                 ),

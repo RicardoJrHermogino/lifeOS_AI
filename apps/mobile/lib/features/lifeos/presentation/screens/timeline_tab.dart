@@ -121,7 +121,7 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
       onRefresh: () async => ref.invalidate(timelineControllerProvider),
       child: ListView.builder(
         controller: _scroll,
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 124),
         itemCount: state.groups.length + 1,
         itemBuilder: (context, i) {
           if (i == state.groups.length) {

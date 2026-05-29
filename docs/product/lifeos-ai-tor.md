@@ -14,6 +14,13 @@ LifeOS AI is a personal AI life operating system. It is designed to help a user 
 
 This TOR is the source agreement for what the documentation package must cover before detailed design, engineering estimation, and implementation begin.
 
+Related documentation:
+
+- `docs/product/lifeos-ai-user-flows.md`
+- `docs/product/lifeos-ai-user-stories.md`
+- `docs/product/DEVELOPMENT_TODO_SEQUENCE.md`
+- `docs/product/lifeos-ai-project-analysis.md`
+
 ## 2. Project Background
 
 Most personal productivity tools treat life information as isolated notes, tasks, chats, journal entries, or calendar events. Users often capture thoughts in scattered places, forget important decisions, lose emotional context, and struggle to understand long-term personal patterns.
