@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Voice capture -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <!-- Awesome Notifications: permission to post notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 

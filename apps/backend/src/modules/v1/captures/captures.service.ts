@@ -1,8 +1,12 @@
 import {
+	BadRequestException,
 	Injectable,
 	InternalServerErrorException,
 	NotFoundException,
 } from "@nestjs/common"
+import crypto from "node:crypto"
+import { mkdir, writeFile } from "node:fs/promises"
+import { extname, join } from "node:path"
 import { and, eq } from "drizzle-orm"
 
 import { rawCaptures } from "@repo/db/schema"
@@ -13,10 +17,64 @@ import { type V1Inputs } from "@/config/contract-types"
 
 type CreateCaptureInput = V1Inputs["capture"]["create"]
 type UpdateTranscriptInput = V1Inputs["capture"]["patchTranscript"]
+type UploadedAudioFile = {
+	buffer: Buffer
+	originalname: string
+	mimetype: string
+	size: number
+}
+
+const MAX_AUDIO_BYTES = 25 * 1024 * 1024
+const ALLOWED_AUDIO_MIME_TYPES = new Set([
+	"audio/aac",
+	"audio/mp4",
+	"audio/mpeg",
+	"audio/ogg",
+	"audio/wav",
+	"audio/webm",
+	"audio/x-m4a",
+	"video/mp4",
+])
 
 @Injectable()
 export class CapturesService {
 	constructor(private readonly jobs: JobsService) {}
+
+	async saveAudioUpload({
+		file,
+		userId,
+		baseUrl,
+	}: {
+		file: UploadedAudioFile | undefined
+		userId: string
+		baseUrl: string
+	}) {
+		if (!file) throw new BadRequestException("Audio file is required")
+		if (file.size > MAX_AUDIO_BYTES) {
+			throw new BadRequestException("Audio file must be 25 MB or smaller")
+		}
+		if (!ALLOWED_AUDIO_MIME_TYPES.has(file.mimetype)) {
+			throw new BadRequestException("Unsupported audio file type")
+		}
+
+		const safeUserId = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
+		const rawExt = extname(file.originalname).toLowerCase()
+		const extension = rawExt && rawExt.length <= 8 ? rawExt : ".m4a"
+		const filename = `${Date.now()}-${crypto.randomUUID()}${extension}`
+		const relativePath = join("audio", safeUserId, filename)
+		const uploadRoot = join(process.cwd(), "uploads")
+		const absolutePath = join(uploadRoot, relativePath)
+
+		await mkdir(join(uploadRoot, "audio", safeUserId), { recursive: true })
+		await writeFile(absolutePath, file.buffer)
+
+		const normalizedPath = relativePath.replace(/\\/g, "/")
+		return {
+			audioUrl: `${baseUrl.replace(/\/$/, "")}/uploads/${normalizedPath}`,
+			size: file.size,
+			mimeType: file.mimetype,
+		}
+	}
 
 	async create({ payload, userId }: { payload: CreateCaptureInput; userId: string }) {
 		// Idempotency on syncId: if a capture already exists for this user+sync_id,

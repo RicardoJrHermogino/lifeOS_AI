@@ -2,26 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/core/theme/app_styles.dart';
-import 'package:mobile/core/theme/theme_provider.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile/features/lifeos/data/exports_repository.dart';
-import 'package:mobile/features/support/presentation/screens/support_ticket_screen.dart';
 import 'package:mobile/features/lifeos/data/settings_repository.dart';
 import 'package:mobile/features/lifeos/presentation/providers/export_controller.dart';
 import 'package:mobile/features/lifeos/presentation/providers/settings_controller.dart';
-import 'package:mobile/services/notifications/notification_service.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/profile_icon_button.dart';
 
 class LifeSettingsTab extends ConsumerWidget {
   const LifeSettingsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBody: true,
@@ -29,63 +22,16 @@ class LifeSettingsTab extends ConsumerWidget {
         title: const Text('Privacy'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [ProfileIconButton()],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 124),
           children: [
-            AppCard(
-              radius: AppRadii.cardLarge,
-              padding: const EdgeInsets.all(AppSpacing.s20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.buttonGradient(brightness),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.border(brightness),
-                        width: 0.5,
-                      ),
-                      boxShadow: AppShadows.button(brightness),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      (user?.name.isNotEmpty == true)
-                          ? user!.name[0].toUpperCase()
-                          : 'L',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.s16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user?.name ?? 'LifeOS user',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: AppSpacing.s4),
-                        Text(
-                          user?.email ?? 'Private memory account',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.secondaryText(brightness),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s24),
+            const _SettingsControls(),
+            const SizedBox(height: AppSpacing.s20),
             _SettingsSection(
-              title: 'Memory control',
+              title: 'Data control',
               children: [
                 _SettingsTile(
                   icon: Icons.download_outlined,
@@ -103,70 +49,6 @@ class LifeSettingsTab extends ConsumerWidget {
               ],
             ),
             const _ExportStatusCard(),
-            const SizedBox(height: AppSpacing.s20),
-            const _SettingsControls(),
-            const SizedBox(height: AppSpacing.s20),
-            _SettingsSection(
-              title: 'Appearance',
-              children: [
-                _ThemeModeRow(
-                  label: 'System',
-                  value: ThemeMode.system,
-                  groupValue: themeMode,
-                  onChanged: (m) => ref
-                      .read(themeControllerProvider.notifier)
-                      .setThemeMode(m),
-                ),
-                _ThemeModeRow(
-                  label: 'Light',
-                  value: ThemeMode.light,
-                  groupValue: themeMode,
-                  onChanged: (m) => ref
-                      .read(themeControllerProvider.notifier)
-                      .setThemeMode(m),
-                ),
-                _ThemeModeRow(
-                  label: 'Dark',
-                  value: ThemeMode.dark,
-                  groupValue: themeMode,
-                  onChanged: (m) => ref
-                      .read(themeControllerProvider.notifier)
-                      .setThemeMode(m),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.s20),
-            _SettingsSection(
-              title: 'Help',
-              children: [
-                _SettingsTile(
-                  icon: Icons.support_agent_rounded,
-                  title: 'Contact support',
-                  subtitle: 'Report an issue or ask a question',
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const SupportTicketScreen(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.s20),
-            AppCard(
-              padding: EdgeInsets.zero,
-              onTap: () => ref.read(authStateProvider.notifier).signOut(),
-              child: ListTile(
-                leading: Icon(Icons.logout, color: theme.colorScheme.error),
-                title: Text(
-                  'Sign out',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.error,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                onTap: () => ref.read(authStateProvider.notifier).signOut(),
-              ),
-            ),
           ],
         ),
       ),
@@ -440,29 +322,11 @@ class _SettingsControls extends ConsumerWidget {
   ) async {
     try {
       await ref.read(settingsControllerProvider.notifier).patch(data);
-      final updated = ref.read(settingsControllerProvider).value;
-      if (updated != null) await _reconcileReminder(updated);
     } catch (e) {
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(SnackBar(content: Text('Could not save: $e')));
     }
-  }
-
-  /// Keeps the local daily-reminder notification in sync with settings.
-  Future<void> _reconcileReminder(SettingsModel s) async {
-    final svc = NotificationService.instance;
-    final time = s.reminderTime;
-    if (s.dailyReminder && time != null && time.contains(':')) {
-      final parts = time.split(':');
-      final hour = int.tryParse(parts[0]);
-      final minute = int.tryParse(parts[1]);
-      if (hour != null && minute != null) {
-        await svc.scheduleDailyReminder(hour: hour, minute: minute);
-        return;
-      }
-    }
-    await svc.cancelDailyReminder();
   }
 
   @override
@@ -488,7 +352,7 @@ class _SettingsControls extends ConsumerWidget {
       data: (s) => Column(
         children: [
           _SettingsSection(
-            title: 'Privacy & consent',
+            title: 'AI & consent',
             children: [
               _SettingsTile(
                 icon: Icons.shield_outlined,
@@ -501,15 +365,12 @@ class _SettingsControls extends ConsumerWidget {
                       _patch(context, ref, {'aiProcessingConsent': v}),
                 ),
               ),
-              _SettingsTile(
-                icon: Icons.lock_outline_rounded,
-                title: 'App lock',
-                subtitle: 'Require device authentication to open LifeOS',
-                trailing: Switch(
-                  value: s.appLock,
-                  onChanged: (v) => _patch(context, ref, {'appLock': v}),
-                ),
-              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s20),
+          _SettingsSection(
+            title: 'Sensitive content',
+            children: [
               _SettingsTile(
                 icon: Icons.warning_amber_rounded,
                 title: 'Sensitive topics',
@@ -522,7 +383,22 @@ class _SettingsControls extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.s20),
           _SettingsSection(
-            title: 'AI behavior',
+            title: 'Security',
+            children: [
+              _SettingsTile(
+                icon: Icons.lock_outline_rounded,
+                title: 'App lock',
+                subtitle: 'Require device authentication to open LifeOS',
+                trailing: Switch(
+                  value: s.appLock,
+                  onChanged: (v) => _patch(context, ref, {'appLock': v}),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s20),
+          _SettingsSection(
+            title: 'Personalization',
             children: [
               _SettingsTile(
                 icon: Icons.tune_rounded,
@@ -550,28 +426,6 @@ class _SettingsControls extends ConsumerWidget {
                 subtitle: _toneLabel(s.reflectionTone),
                 onTap: () => _pickTone(context, ref, s.reflectionTone),
               ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s20),
-          _SettingsSection(
-            title: 'Reminders',
-            children: [
-              _SettingsTile(
-                icon: Icons.notifications_none_rounded,
-                title: 'Daily reminder',
-                subtitle: 'A gentle nudge to capture your day',
-                trailing: Switch(
-                  value: s.dailyReminder,
-                  onChanged: (v) => _patch(context, ref, {'dailyReminder': v}),
-                ),
-              ),
-              if (s.dailyReminder)
-                _SettingsTile(
-                  icon: Icons.schedule_rounded,
-                  title: 'Reminder time',
-                  subtitle: s.reminderTime ?? 'Not set',
-                  onTap: () => _pickTime(context, ref, s.reminderTime),
-                ),
             ],
           ),
         ],
@@ -606,26 +460,6 @@ class _SettingsControls extends ConsumerWidget {
     if (picked != null && picked != current && context.mounted) {
       await _patch(context, ref, {'reflectionTone': picked});
     }
-  }
-
-  Future<void> _pickTime(
-    BuildContext context,
-    WidgetRef ref,
-    String? current,
-  ) async {
-    TimeOfDay initial = const TimeOfDay(hour: 20, minute: 0);
-    if (current != null && current.contains(':')) {
-      final parts = current.split(':');
-      initial = TimeOfDay(
-        hour: int.tryParse(parts[0]) ?? 20,
-        minute: int.tryParse(parts[1]) ?? 0,
-      );
-    }
-    final picked = await showTimePicker(context: context, initialTime: initial);
-    if (picked == null || !context.mounted) return;
-    final value =
-        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-    await _patch(context, ref, {'reminderTime': value});
   }
 
   Future<void> _editSensitiveTopics(
@@ -728,35 +562,6 @@ class _SensitiveTopicsDialogState extends State<_SensitiveTopicsDialog> {
           child: const Text('Save'),
         ),
       ],
-    );
-  }
-}
-
-class _ThemeModeRow extends StatelessWidget {
-  const _ThemeModeRow({
-    required this.label,
-    required this.value,
-    required this.groupValue,
-    required this.onChanged,
-  });
-
-  final String label;
-  final ThemeMode value;
-  final ThemeMode groupValue;
-  final ValueChanged<ThemeMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
-    final selected = value == groupValue;
-
-    return ListTile(
-      onTap: () => onChanged(value),
-      title: Text(label, style: theme.textTheme.bodyLarge),
-      trailing: selected
-          ? Icon(Icons.check_rounded, color: AppColors.accent(brightness))
-          : null,
     );
   }
 }

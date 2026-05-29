@@ -7,6 +7,7 @@ import 'package:mobile/features/lifeos/presentation/providers/search_controller.
 import 'package:mobile/features/lifeos/presentation/providers/timeline_controller.dart';
 import 'package:mobile/features/lifeos/presentation/screens/memory_review_detail_screen.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/profile_icon_button.dart';
 import 'package:toastification/toastification.dart';
 
 class TimelineTab extends ConsumerStatefulWidget {
@@ -58,11 +59,13 @@ class _TimelineTabState extends ConsumerState<TimelineTab> {
         actions: [
           IconButton(
             tooltip: 'Filter',
+            iconSize: 28,
             icon: Icon(
               filter.isEmpty ? Icons.filter_list : Icons.filter_list_alt,
             ),
             onPressed: _openFilterSheet,
           ),
+          const ProfileIconButton(),
         ],
       ),
       body: SafeArea(

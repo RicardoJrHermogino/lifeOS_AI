@@ -1,4 +1,10 @@
-import { Global, Logger, Module, OnApplicationBootstrap, OnApplicationShutdown } from "@nestjs/common"
+import {
+	Global,
+	Logger,
+	Module,
+	OnApplicationBootstrap,
+	OnApplicationShutdown,
+} from "@nestjs/common"
 import type { Worker } from "bullmq"
 
 import { AiService } from "@/common/ai/ai.service"

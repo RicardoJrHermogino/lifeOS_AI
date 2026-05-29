@@ -146,6 +146,14 @@ class FakeCapturesRepository implements CapturesRepository {
     required String id,
     required String transcript,
   }) async => makeCapture();
+
+  @override
+  Future<String> uploadAudio(String path) async {
+    calls.add({'uploadAudio': path});
+    final err = error;
+    if (err != null) throw err;
+    return 'https://example.com/audio.m4a';
+  }
 }
 
 class FakeInsightsRepository implements InsightsRepository {

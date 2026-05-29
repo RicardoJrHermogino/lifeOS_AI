@@ -31,6 +31,15 @@ class CapturesRepository {
     return CaptureModel.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<String> uploadAudio(String path) async {
+    final response = await _dio.post<dynamic>(
+      ApiConstants.captureAudio,
+      data: FormData.fromMap({'file': await MultipartFile.fromFile(path)}),
+    );
+    final data = response.data as Map<String, dynamic>;
+    return data['audioUrl'] as String;
+  }
+
   Future<CaptureModel> getCapture(String id) async {
     final response = await _dio.get<dynamic>(ApiConstants.captureById(id));
     return CaptureModel.fromJson(response.data as Map<String, dynamic>);

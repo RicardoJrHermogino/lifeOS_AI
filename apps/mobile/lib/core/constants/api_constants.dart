@@ -20,6 +20,7 @@ class ApiConstants {
 
   // LifeOS - Captures
   static String get captures => '$versionedUrl/captures';
+  static String get captureAudio => '$versionedUrl/captures/audio';
   static String captureById(String id) => '$versionedUrl/captures/$id';
   static String captureTranscript(String id) =>
       '$versionedUrl/captures/$id/transcript';

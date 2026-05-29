@@ -25,9 +25,7 @@ export function startExtractionWorker(ai: AiService): Worker | null {
 			// Consent gate: skip AI extraction if the user disabled AI processing.
 			const settings = await getEffectiveSettings(userId)
 			if (!settings.aiProcessingConsent) {
-				logger.log(
-					`Skipping extraction for ${captureId}: AI processing consent disabled`
-				)
+				logger.log(`Skipping extraction for ${captureId}: AI processing consent disabled`)
 				await db
 					.update(rawCaptures)
 					.set({ status: "done", updatedAt: new Date() })
