@@ -36,31 +36,49 @@ class AppRadii {
 class AppColors {
   AppColors._();
 
+  // Brand
+  static const Color midnightIndigo = Color(0xFF3B3580);
+  static const Color softIndigo = Color(0xFFEEEDFE);
+  static const Color deepTeal = Color(0xFF0F6E56);
+  static const Color mistTeal = Color(0xFFE1F5EE);
+
+  // Semantic
+  static const Color softAmber = Color(0xFFEF9F27);
+  static const Color blushRose = Color(0xFFF4C0D1);
+
+  // Neutral
+  static const Color warmStone = Color(0xFFF1EFE8);
+  static const Color stoneMid = Color(0xFFD3D1C7);
+  static const Color charcoal = Color(0xFF2C2C2A);
+
   // Light palette
-  static const Color background = Color(0xFFF5F5F7);
-  static const Color surface = Color(0xFFFFFFFF);
-  static Color elevatedSurface = Colors.white.withValues(alpha: 0.75);
-  static const Color primaryText = Color(0xFF0A0A0A);
-  static const Color secondaryTextLight = Color(0xFF5E5E63);
-  static Color borderLight = Colors.black.withValues(alpha: 0.08);
+  static const Color background = warmStone;
+  static const Color surface = warmStone;
+  static Color elevatedSurface = Colors.white.withValues(alpha: 0.46);
+  static const Color primaryText = charcoal;
+  static Color secondaryTextLight = charcoal.withValues(alpha: 0.64);
+  static Color borderLight = stoneMid;
 
   // Dark palette
-  static const Color backgroundDark = Color(0xFF0A0A0B);
-  static const Color surfaceDark = Color(0xFF111113);
-  static Color elevatedSurfaceDark = const Color(
-    0xFF191A1C,
-  ).withValues(alpha: 0.86);
-  static const Color primaryTextDark = Color(0xFFFFFFFF);
-  static const Color secondaryTextDarkColor = Color(0xFFB0B0B5);
-  static Color borderDark = Colors.white.withValues(alpha: 0.12);
+  static const Color backgroundDark = charcoal;
+  static Color surfaceDark = Color.alphaBlend(
+    warmStone.withValues(alpha: 0.035),
+    charcoal,
+  );
+  static Color elevatedSurfaceDark = Color.alphaBlend(
+    warmStone.withValues(alpha: 0.07),
+    charcoal,
+  );
+  static const Color primaryTextDark = warmStone;
+  static Color secondaryTextDarkColor = stoneMid.withValues(alpha: 0.72);
+  static Color borderDark = stoneMid.withValues(alpha: 0.18);
 
-  // Shared neutrals
-  static const Color charcoal = Color(0xFF1A1A1D);
-  static const Color graphite = Color(0xFF2C2C2E);
-  static const Color silver = Color(0xFF8E8E93);
-  static const Color smoke = Color(0xFFD9D9D9);
-  static const Color accentLight = Color(0xFF2563EB);
-  static const Color accentDark = Color(0xFF8AB4FF);
+  // Compatibility aliases for older UI code.
+  static const Color graphite = charcoal;
+  static const Color silver = stoneMid;
+  static const Color smoke = stoneMid;
+  static const Color accentLight = midnightIndigo;
+  static const Color accentDark = midnightIndigo;
 
   // Brightness-aware getters
   static Color primary(Brightness b) =>
@@ -78,9 +96,18 @@ class AppColors {
   static Color accent(Brightness b) =>
       b == Brightness.dark ? accentDark : accentLight;
   static Color onAccent(Brightness b) =>
-      b == Brightness.dark ? backgroundDark : surface;
+      b == Brightness.dark ? warmStone : warmStone;
   static Color accentTint(Brightness b) =>
-      accent(b).withValues(alpha: b == Brightness.dark ? 0.20 : 0.10);
+      b == Brightness.dark ? softIndigo.withValues(alpha: 0.14) : softIndigo;
+  static Color success(Brightness b) => deepTeal;
+  static Color successTint(Brightness b) =>
+      b == Brightness.dark ? mistTeal.withValues(alpha: 0.14) : mistTeal;
+  static Color warning(Brightness b) => softAmber;
+  static Color warningTint(Brightness b) =>
+      softAmber.withValues(alpha: b == Brightness.dark ? 0.16 : 0.22);
+  static Color emotion(Brightness b) => blushRose;
+  static Color emotionTint(Brightness b) =>
+      blushRose.withValues(alpha: b == Brightness.dark ? 0.16 : 0.42);
 }
 
 class AppGradients {
@@ -94,15 +121,15 @@ class AppGradients {
           ? [
               AppColors.charcoal,
               Color.alphaBlend(
-                AppColors.accentDark.withValues(alpha: 0.06),
+                AppColors.midnightIndigo.withValues(alpha: 0.12),
                 AppColors.backgroundDark,
               ),
             ]
           : [
-              AppColors.surface,
+              AppColors.warmStone,
               Color.alphaBlend(
-                AppColors.accentLight.withValues(alpha: 0.05),
-                AppColors.smoke,
+                AppColors.softIndigo.withValues(alpha: 0.62),
+                AppColors.warmStone,
               ),
             ],
     );
@@ -115,17 +142,17 @@ class AppGradients {
       colors: b == Brightness.dark
           ? [
               Color.alphaBlend(
-                AppColors.accentDark.withValues(alpha: 0.045),
-                const Color(0xFF1A1B20),
+                AppColors.softIndigo.withValues(alpha: 0.06),
+                AppColors.charcoal,
               ),
               Color.alphaBlend(
-                AppColors.accentDark.withValues(alpha: 0.025),
+                AppColors.midnightIndigo.withValues(alpha: 0.10),
                 AppColors.surfaceDark,
               ),
             ]
           : [
-              Colors.white.withValues(alpha: 0.88),
-              Colors.white.withValues(alpha: 0.60),
+              AppColors.warmStone.withValues(alpha: 0.92),
+              AppColors.softIndigo.withValues(alpha: 0.70),
             ],
     );
   }
@@ -133,7 +160,10 @@ class AppGradients {
   static RadialGradient ambientGlow = RadialGradient(
     center: const Alignment(-0.8, -0.9),
     radius: 0.9,
-    colors: [AppColors.accentDark.withValues(alpha: 0.14), Colors.transparent],
+    colors: [
+      AppColors.midnightIndigo.withValues(alpha: 0.18),
+      Colors.transparent,
+    ],
     stops: const [0.0, 0.6],
   );
 
@@ -144,22 +174,22 @@ class AppGradients {
       colors: b == Brightness.dark
           ? [
               Color.alphaBlend(
-                AppColors.accentDark.withValues(alpha: 0.16),
+                AppColors.softIndigo.withValues(alpha: 0.10),
                 AppColors.charcoal,
               ),
               Color.alphaBlend(
-                AppColors.accentDark.withValues(alpha: 0.08),
-                const Color(0xFF050506),
+                AppColors.midnightIndigo.withValues(alpha: 0.22),
+                AppColors.charcoal,
               ),
             ]
           : [
               Color.alphaBlend(
-                AppColors.accentLight.withValues(alpha: 0.12),
-                Colors.white,
+                AppColors.softIndigo.withValues(alpha: 0.90),
+                AppColors.warmStone,
               ),
               Color.alphaBlend(
-                AppColors.accentLight.withValues(alpha: 0.08),
-                AppColors.smoke,
+                AppColors.mistTeal.withValues(alpha: 0.58),
+                AppColors.warmStone,
               ),
             ],
     );

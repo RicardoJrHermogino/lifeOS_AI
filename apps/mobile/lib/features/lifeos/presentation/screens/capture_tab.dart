@@ -54,7 +54,7 @@ class CaptureTab extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 124),
           children: [
             if (!online) ...[
               const _OfflineBanner(),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
 import 'package:mobile/shared/widgets/app_text_field.dart';
+import 'package:mobile/shared/widgets/lifeos_mark.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -85,6 +86,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.isLoading;
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
@@ -97,10 +99,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.memory_rounded,
-                    size: 64,
-                    color: theme.colorScheme.primary,
+                  Center(
+                    child: LifeOsMark(
+                      size: 72,
+                      onDarkBackground: brightness == Brightness.dark,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Text(

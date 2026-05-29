@@ -11,6 +11,10 @@ This document defines detailed user flows for LifeOS AI. Each flow describes the
 
 LifeOS AI must feel simple on the surface while performing sophisticated structuring, indexing, summarization, and retrieval in the background.
 
+Related planning reference:
+
+- `docs/product/lifeos-ai-project-analysis.md`
+
 ## 2. Core Navigation Model
 
 ### 2.1 Primary Tabs
@@ -56,6 +60,17 @@ flowchart TD
     N --> P[Conversational Retrieval]
 ```
 
+### 3.1 Project Analysis Alignment
+
+The flows must preserve these product-analysis priorities:
+
+1. The first session should reach a first structured memory before the user sees an empty dashboard.
+2. Privacy ownership should be visible during onboarding, capture review, Ask, settings, export, and deletion.
+3. Ask answers should behave like a trusted memory retrieval feature, not a generic chatbot, and must expose source memories.
+4. Corrections from memory review, reflection feedback, and Ask feedback should become quality signals when consent allows it.
+5. Weekly digest and retention loops are P1 unless explicitly pulled into MVP scope.
+6. Support and admin flows must not imply access to private memories.
+
 ## 4. Flow 1: First-Time Onboarding
 
 ### 4.1 User Goal
@@ -80,9 +95,9 @@ The user wants to understand what LifeOS AI does, create an account, set privacy
 | 4 | Privacy promise | Reviews privacy principles | Shows data ownership, deletion, export, AI processing notes | None |
 | 5 | Consent setup | Accepts required consent and selects optional AI features | Saves consent profile | None |
 | 6 | Memory preferences | Selects capture reminders, tone, sensitive topic handling | Saves preferences | None |
-| 7 | First capture prompt | Chooses voice or text | Opens capture interface | Prepares processing pipeline |
-| 8 | First memory review | Reviews AI extracted memory | Displays summary, emotions, tags, actions, entities | Extracts structure from input |
-| 9 | Completion | Taps Save Memory | Stores memory and shows timeline placement | Indexes memory |
+| 7 | First capture prompt | Chooses voice or text | Opens capture interface with a short privacy reminder | Prepares processing pipeline |
+| 8 | First memory review | Reviews AI extracted memory | Displays summary, emotions, tags, actions, entities, and original source | Extracts structure from input |
+| 9 | Completion | Taps Save Memory | Stores memory, shows timeline placement, and makes the first memory feel complete | Indexes memory |
 
 ### 4.4 Required Screens
 
@@ -103,6 +118,7 @@ The user wants to understand what LifeOS AI does, create an account, set privacy
 3. User captures first memory before reaching a blank dashboard.
 4. User understands that AI-generated memories are editable.
 5. User can access privacy settings after onboarding.
+6. User sees a concrete first-memory outcome that demonstrates why capture matters.
 
 ### 4.6 Edge Cases
 
@@ -225,7 +241,7 @@ The user wants to confirm or correct what the AI understood before the memory be
 | 3 | Correction | Edits value | Marks field as user-corrected |
 | 4 | Confidence review | Expands confidence details | Shows uncertain fields first |
 | 5 | Save | Taps Save | Stores memory and correction metadata |
-| 6 | Learning | None | Uses correction to improve future extraction if consented |
+| 6 | Learning | None | Uses correction to improve future extraction if consented and records quality signals |
 
 ### 7.3 Review States
 
@@ -343,7 +359,7 @@ The user wants to ask natural questions about their past and receive answers gro
 | 2 | Query understanding | None | Detects date range, entities, topics | Classifies intent |
 | 3 | Retrieval | None | Searches semantic index and metadata | Reranks relevant memories |
 | 4 | Answer generation | None | Fetches source memories | Generates grounded answer |
-| 5 | Answer screen | Reads answer | Shows sources and confidence | Flags uncertainty |
+| 5 | Answer screen | Reads answer | Shows citations, source memories, and confidence | Flags uncertainty |
 | 6 | Follow-up | Asks another question | Maintains context | Narrows or expands retrieval |
 
 ### 10.4 Answer Requirements
@@ -352,6 +368,7 @@ The user wants to ask natural questions about their past and receive answers gro
 |---|---|
 | Grounded response | Every factual claim must map to stored memories |
 | Source references | User can open memories used in answer |
+| Citation clarity | Answer highlights which memory supports each key claim where practical |
 | Uncertainty | System says when evidence is limited |
 | Correction | User can mark answer wrong or correct memory |
 | Safety | Avoid diagnosis, absolute claims, or unsupported conclusions |
@@ -400,6 +417,10 @@ The user wants to understand long-term patterns without feeling judged or survei
 4. Show supporting memories.
 5. Let user dismiss an insight and hide similar future insights.
 6. Allow user to delete insight without deleting source memories.
+
+### 11.5 Weekly Digest Candidate
+
+Weekly digest is a P1 retention and reflection loop. It should summarize the week only from saved memories, cite source memories, respect sensitive-topic settings, and let the user disable digest notifications.
 
 ## 12. Flow 9: Memory Detail, Edit, Delete, and Export
 
@@ -455,6 +476,10 @@ The user wants to understand and control how LifeOS AI stores, processes, and us
 | Deletion | Delete individual memories, data categories, or full account |
 | Security | Passcode, biometrics, active sessions |
 | Transparency | View processing history and AI-generated content |
+
+### 13.4 Support Privacy Boundary
+
+Support and operations views may reference account status, ticket details, device/app diagnostics, and user-submitted attachments. They must not expose private memories, transcripts, embeddings, insights, or graph links unless the user explicitly attaches content to a support report.
 
 ## 14. Flow 11: Offline Capture and Sync
 

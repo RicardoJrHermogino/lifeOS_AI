@@ -11,6 +11,10 @@ This document defines detailed user stories for LifeOS AI. Each story includes u
 
 The stories are written to support backlog creation, sprint planning, wireframing, test planning, and engineering estimation.
 
+Related planning reference:
+
+- `docs/product/lifeos-ai-project-analysis.md`
+
 ## 2. Priority Definitions
 
 | Priority | Meaning |
@@ -84,6 +88,7 @@ Acceptance criteria:
 |---|---|---|
 | I open onboarding | I view the product explanation | I understand that the app captures life fragments and turns them into memories |
 | I review privacy information | I continue | I understand that I can edit, delete, and export my data |
+| I finish my first capture | AI processing completes | I see a concrete structured memory instead of an empty dashboard |
 | I see AI feature descriptions | I read them | They do not claim therapy, diagnosis, or guaranteed accuracy |
 
 Functional notes:
@@ -91,6 +96,7 @@ Functional notes:
 1. The explanation should be short and plain.
 2. The app should communicate that AI-generated memory can be wrong and editable.
 3. The app should clarify that LifeOS AI is not a generic chatbot.
+4. The first-memory moment should make the product value visible within the first session.
 
 ### US-003: Set Consent Preferences
 
@@ -272,12 +278,14 @@ Acceptance criteria:
 | I disagree with a field | I edit it | The corrected value replaces the AI value |
 | I do not want the memory | I tap delete | The candidate is discarded |
 | The memory is sensitive | I view it | The app applies sensitive display and privacy rules |
+| I correct AI output | I save the candidate | The correction is recorded as a quality signal when consent allows it |
 
 Functional notes:
 
 1. Original source must remain visible unless deleted by user.
 2. Field-level edits must be tracked as user corrections.
 3. Saved memories must update timeline, semantic index, and knowledge graph.
+4. Correction analytics must not expose private memory contents.
 
 ### US-011: Auto-Save Trusted Memory
 
@@ -463,12 +471,14 @@ Acceptance criteria:
 | I ask "Why was I stressed last month?" | Evidence exists | The answer cites relevant memories and uses cautious language |
 | I ask a question with limited evidence | Few memories exist | The answer states that evidence is limited |
 | I ask about deleted memory content | Memory was deleted | The deleted memory is not used |
+| I inspect an answer | Sources are available | I can open the source memories that support the answer |
 
 Functional notes:
 
 1. Answers must include source references.
 2. The system should not invent facts not present in memory.
 3. The user should be able to open supporting memories.
+4. Key claims should be traceable to one or more source memories where practical.
 
 ### US-020: Correct an AI Answer
 
@@ -483,11 +493,13 @@ Acceptance criteria:
 | I receive an answer | I tap "Not accurate" | I can provide feedback |
 | I identify a wrong source memory | I open it | I can edit or delete the memory |
 | I submit feedback | Feedback is saved | The app acknowledges the correction |
+| I correct an answer | Feedback is saved | The correction is attached to the answer, query, and cited sources |
 
 Functional notes:
 
 1. Feedback should be tied to the answer and source memories.
 2. The system may use feedback for ranking improvement if user consent permits.
+3. Feedback should support quality reporting without exposing private memory text in analytics.
 
 ## 11. E08: Daily Reflection
 
@@ -530,6 +542,27 @@ Functional notes:
 
 1. User-edited reflections should be distinguishable from AI-generated reflections.
 2. Feedback should not require a long form.
+
+### US-022A: Receive Weekly Memory Digest
+
+As a user, I want a weekly digest of meaningful memories so that I can notice patterns without checking the app every day.
+
+Priority: P1
+
+Acceptance criteria:
+
+| Given | When | Then |
+|---|---|---|
+| I have enough saved memories for the week | Weekly digest runs | I receive a grounded weekly summary |
+| I open the digest | It loads | I see cited memories, key moments, mood patterns, decisions, and actions when available |
+| Sensitive memories are present | Digest is generated | The digest follows my sensitive-topic preferences |
+| I disable digest notifications | The week ends | No digest notification is sent |
+
+Functional notes:
+
+1. Weekly digest is a retention loop and may ship immediately after MVP if not included in MVP.
+2. Digest claims must link back to source memories.
+3. Digest tone must remain calm, non-diagnostic, and user-controlled.
 
 ## 12. E09: Insight Engine
 
@@ -778,6 +811,7 @@ Functional notes:
 
 1. Issue types may include inaccurate, harmful, too personal, missing context, wrong source.
 2. User should control whether supporting content is included in the report.
+3. Support staff must not see private memories unless the user explicitly includes them in the report.
 
 ### US-036: View Processing Status
 
@@ -797,6 +831,27 @@ Functional notes:
 
 1. Status must exist for transcription, extraction, indexing, and sync.
 2. The app should avoid technical jargon in user-facing status.
+
+### US-037: Protect Memory Data From Support Access
+
+As a user, I want support staff to help me without reading my private memories so that operational support does not compromise trust.
+
+Priority: P0
+
+Acceptance criteria:
+
+| Given | When | Then |
+|---|---|---|
+| A support agent views my ticket | The ticket opens | Private memories, transcripts, embeddings, insights, and graph links are hidden |
+| I include an attachment or excerpt in a report | Support opens the report | Only the content I submitted is visible |
+| Support needs diagnostics | They view metadata | They see account, device, app version, and processing status without memory content |
+| A support export is generated | It completes | It excludes private memory content by default |
+
+Functional notes:
+
+1. Admin/support roles need a separate permission model before any operational console ships.
+2. Memory-content access must require explicit user submission or a future reviewed escalation policy.
+3. Support tooling should log access to tickets and diagnostics.
 
 ## 19. MVP Story Checklist
 
@@ -823,6 +878,7 @@ The following stories are required for MVP:
 | US-021 | Generate Daily Summary |
 | US-027 | Export My Data |
 | US-028 | Delete Account and Data |
+| US-037 | Protect Memory Data From Support Access |
 
 ## 20. Cross-Cutting Acceptance Rules
 
@@ -838,6 +894,8 @@ These rules apply to all relevant stories:
 8. All major data actions must have clear success and failure states.
 9. The user must be able to access privacy controls from settings.
 10. The product must avoid medical, diagnostic, or therapeutic claims.
+11. Ask, reflections, insights, and digests must cite or link to source memories when making factual claims.
+12. Support and admin workflows must not expose private memories by default.
 
 ## 21. Example End-to-End Scenario
 

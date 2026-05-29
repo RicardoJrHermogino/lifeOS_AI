@@ -92,6 +92,7 @@ Core foundations that must be completed first:
 - Mobile app: `apps/mobile`
 - Test guide: `TESTING.md`
 - Product docs: `docs/product/lifeos-ai-tor.md`, `docs/product/lifeos-ai-user-flows.md`, `docs/product/lifeos-ai-user-stories.md`
+- Project analysis: `docs/product/lifeos-ai-project-analysis.md`
 
 ### Tasks
 
@@ -171,6 +172,10 @@ Core foundations that must be completed first:
   - [ ] Missing object storage setup for voice audio and exports, if any.
   - [ ] Current blocker: Docker is not installed or not on PATH, so `docker compose up -d db` cannot run.
   - [ ] Current blocker: reachable local PostgreSQL does not have pgvector installed, so `pnpm db:push` fails on `memories.embedding vector(1536)`.
+- [ ] Review project analysis gaps before closing Phase 1:
+  - [ ] Resolve or explicitly defer pgvector automation.
+  - [ ] Resolve or explicitly defer one-command local setup.
+  - [ ] Confirm all Phase 1 blockers are reflected in `docs/product/lifeos-ai-project-analysis.md`.
 
 ### Done when
 
@@ -1353,6 +1358,7 @@ Dependent modules must be developed in this order because each one consumes data
   - [ ] US-021 Generate Daily Summary.
   - [ ] US-027 Export My Data.
   - [ ] US-028 Delete Account and Data.
+  - [ ] US-037 Protect Memory Data From Support Access.
 - [ ] Verify user flow from start to finish:
   - [ ] New user opens app.
   - [ ] Creates account.
