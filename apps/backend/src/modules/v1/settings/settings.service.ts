@@ -14,10 +14,7 @@ export class SettingsService {
 	 * Returns the user's settings row, creating it with defaults on first access.
 	 */
 	async getOrCreate({ userId }: { userId: string }) {
-		const [existing] = await db
-			.select()
-			.from(userSettings)
-			.where(eq(userSettings.userId, userId))
+		const [existing] = await db.select().from(userSettings).where(eq(userSettings.userId, userId))
 		if (existing) return existing
 
 		const [created] = await db.insert(userSettings).values({ userId }).returning()

@@ -36,9 +36,7 @@ const id = "11111111-1111-4111-8111-111111111111"
 
 describe("ReflectionsController (v1)", () => {
 	let controller: ReflectionsController
-	let service: jest.Mocked<
-		Pick<ReflectionsService, "today" | "getByDate" | "update" | "feedback">
-	>
+	let service: jest.Mocked<Pick<ReflectionsService, "today" | "getByDate" | "update" | "feedback">>
 
 	beforeEach(() => {
 		service = {

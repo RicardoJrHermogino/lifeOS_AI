@@ -1,4 +1,6 @@
 import { Logger, type INestApplication } from "@nestjs/common"
+import { existsSync, mkdirSync } from "node:fs"
+import { join } from "node:path"
 import * as express from "express"
 
 import { env } from "@/config/env.config"
@@ -15,6 +17,17 @@ function configureBodyParser(app: INestApplication): void {
 	httpAdapter.use(express.json())
 	httpAdapter.use(express.urlencoded({ extended: true }))
 	logger.log("Body parser middleware configured")
+}
+
+function configureStaticUploads(app: INestApplication): void {
+	const uploadRoot = join(process.cwd(), "uploads")
+	if (!existsSync(uploadRoot)) {
+		mkdirSync(uploadRoot, { recursive: true })
+	}
+
+	const httpAdapter = app.getHttpAdapter()
+	httpAdapter.use("/uploads", express.static(uploadRoot))
+	logger.log(`Static upload files served from ${uploadRoot}`)
 }
 
 /**
@@ -52,6 +65,7 @@ function enableGracefulShutdown(app: INestApplication): void {
  * Note: Global pipes/interceptors/filters are registered via APP_* providers in app.module.ts
  */
 export function configureApp(app: INestApplication): void {
+	configureStaticUploads(app)
 	configureBodyParser(app)
 	configureCors(app)
 	enableGracefulShutdown(app)

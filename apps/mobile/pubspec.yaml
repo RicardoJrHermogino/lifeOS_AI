@@ -58,6 +58,8 @@ dependencies:
 
   # Local push notifications
   awesome_notifications: ^0.11.0
+  record: ^7.0.0
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:

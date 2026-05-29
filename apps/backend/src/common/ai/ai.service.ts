@@ -129,9 +129,7 @@ Return a JSON object with these fields:
 			opts?.personalize === false
 				? " Do not infer personal patterns or traits beyond what the listed memories state."
 				: ""
-		const memoryBlock = memories
-			.map(m => `- [${m.id}] ${m.title}: ${m.summary}`)
-			.join("\n")
+		const memoryBlock = memories.map(m => `- [${m.id}] ${m.title}: ${m.summary}`).join("\n")
 		const response = await client.chat.completions.create({
 			model: env.OPENAI_MODEL,
 			temperature: 0.3,
@@ -154,9 +152,7 @@ Return a JSON object with these fields:
 		if (memories.length < 3) return []
 
 		const validIds = new Set(memories.map(m => m.id))
-		const memoryBlock = memories
-			.map(m => `[${m.id}] ${m.title}: ${m.summary}`)
-			.join("\n")
+		const memoryBlock = memories.map(m => `[${m.id}] ${m.title}: ${m.summary}`).join("\n")
 
 		const response = await client.chat.completions.create({
 			model: env.OPENAI_MODEL,
@@ -203,9 +199,7 @@ Rules: Use ONLY the provided memories. Every insight must be supported by at lea
 			// Require grounding in 2+ real memories.
 			if (ids.length < 2) continue
 			const evidence =
-				obj.evidence === "strong" || obj.evidence === "weak"
-					? obj.evidence
-					: "moderate"
+				obj.evidence === "strong" || obj.evidence === "weak" ? obj.evidence : "moderate"
 			result.push({
 				type: typeof obj.type === "string" ? obj.type : "pattern",
 				title: typeof obj.title === "string" ? obj.title.slice(0, 80) : "Pattern",
@@ -235,7 +229,10 @@ Rules: Use ONLY the provided memories. Every insight must be supported by at lea
 				? ` Use especially gentle, non-judgmental language around these sensitive topics: ${opts.sensitiveTopics.join(", ")}.`
 				: ""
 		const context = memories
-			.map(m => `[${m.id}] ${m.title} (${new Date(m.eventDate).toISOString().slice(0, 10)}): ${m.summary}`)
+			.map(
+				m =>
+					`[${m.id}] ${m.title} (${new Date(m.eventDate).toISOString().slice(0, 10)}): ${m.summary}`
+			)
 			.join("\n")
 		const response = await client.chat.completions.create({
 			model: env.OPENAI_MODEL,

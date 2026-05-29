@@ -45,6 +45,27 @@ class CreateCapture extends _$CreateCapture {
       return null;
     }
   }
+
+  Future<CaptureModel?> submitVoiceFile({
+    required String path,
+    String? mood,
+  }) async {
+    state = const AsyncValue.loading();
+    try {
+      final repo = ref.read(capturesRepositoryProvider);
+      final audioUrl = await repo.uploadAudio(path);
+      final result = await repo.createCapture(
+        type: 'voice',
+        audioUrl: audioUrl,
+        mood: mood,
+      );
+      state = AsyncValue.data(result);
+      return result;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
 }
 
 /// Polls capture status until done or failed.

@@ -1,8 +1,4 @@
-import {
-	Injectable,
-	InternalServerErrorException,
-	NotFoundException,
-} from "@nestjs/common"
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common"
 import { and, desc, eq, lt, ne } from "drizzle-orm"
 
 import { memories } from "@repo/db/schema"
@@ -24,10 +20,7 @@ export class MemoriesService {
 	 */
 	async listCandidates({ query, userId }: { query: CandidatesQuery; userId: string }) {
 		const limit = (query.limit as number | undefined) ?? 20
-		const baseConds = [
-			eq(memories.userId, userId),
-			eq(memories.status, "candidate"),
-		]
+		const baseConds = [eq(memories.userId, userId), eq(memories.status, "candidate")]
 
 		if (query.cursor) {
 			const [cursorRow] = await db
@@ -55,9 +48,7 @@ export class MemoriesService {
 		const [memory] = await db
 			.select()
 			.from(memories)
-			.where(
-				and(eq(memories.id, id), eq(memories.userId, userId), ne(memories.status, "deleted"))
-			)
+			.where(and(eq(memories.id, id), eq(memories.userId, userId), ne(memories.status, "deleted")))
 		if (!memory) throw new NotFoundException(`Memory ${id} not found`)
 		return memory
 	}
@@ -89,8 +80,7 @@ export class MemoriesService {
 				goals: payload.goals ?? existing.goals,
 				decisions: payload.decisions ?? existing.decisions,
 				actions: payload.actions ?? existing.actions,
-				sensitivity:
-					payload.sensitivity === undefined ? existing.sensitivity : payload.sensitivity,
+				sensitivity: payload.sensitivity === undefined ? existing.sensitivity : payload.sensitivity,
 				// First save out of candidate flow lifts it to saved.
 				status: existing.status === "candidate" ? "saved" : existing.status,
 				isUserCorrected: true,
@@ -156,29 +146,17 @@ export class MemoriesService {
 	 */
 	async related({ id, userId }: { id: string; userId: string }) {
 		const target = await this.findOne({ id, userId })
-		const tags = new Set<string>([
-			...target.people,
-			...target.topics,
-			...target.places,
-		])
+		const tags = new Set<string>([...target.people, ...target.topics, ...target.places])
 		if (tags.size === 0) return []
 
 		const candidates = await db
 			.select()
 			.from(memories)
-			.where(
-				and(
-					eq(memories.userId, userId),
-					eq(memories.status, "saved"),
-					ne(memories.id, id)
-				)
-			)
+			.where(and(eq(memories.userId, userId), eq(memories.status, "saved"), ne(memories.id, id)))
 
 		const scored = candidates
 			.map(m => {
-				const overlap = [...m.people, ...m.topics, ...m.places].filter(t =>
-					tags.has(t)
-				).length
+				const overlap = [...m.people, ...m.topics, ...m.places].filter(t => tags.has(t)).length
 				return { memory: m, overlap }
 			})
 			.filter(x => x.overlap > 0)

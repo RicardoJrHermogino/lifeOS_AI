@@ -20,12 +20,7 @@ export class InsightsService {
 		return db
 			.select()
 			.from(insights)
-			.where(
-				and(
-					eq(insights.userId, userId),
-					inArray(insights.status, ["active", "saved"])
-				)
-			)
+			.where(and(eq(insights.userId, userId), inArray(insights.status, ["active", "saved"])))
 			.orderBy(desc(insights.createdAt))
 	}
 
@@ -89,11 +84,7 @@ export class InsightsService {
 		return updated
 	}
 
-	private async setStatus(
-		id: string,
-		userId: string,
-		status: "saved" | "dismissed"
-	) {
+	private async setStatus(id: string, userId: string, status: "saved" | "dismissed") {
 		const [updated] = await db
 			.update(insights)
 			.set({ status, updatedAt: new Date() })

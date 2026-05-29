@@ -5,6 +5,7 @@ import 'package:mobile/features/lifeos/data/ask_repository.dart';
 import 'package:mobile/features/lifeos/data/memories_repository.dart';
 import 'package:mobile/features/lifeos/presentation/screens/memory_review_detail_screen.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/profile_icon_button.dart';
 
 class AskTab extends ConsumerStatefulWidget {
   const AskTab({super.key});
@@ -83,6 +84,7 @@ class _AskTabState extends ConsumerState<AskTab> {
         title: const Text('Ask Memory'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [ProfileIconButton()],
       ),
       body: SafeArea(
         child: ListView(
@@ -259,7 +261,9 @@ class _AskTabState extends ConsumerState<AskTab> {
                       (c) => ActionChip(
                         avatar: const Icon(Icons.north_east, size: 14),
                         label: Text(c.title),
-                        onPressed: _opening ? null : () => _openMemory(c.memoryId),
+                        onPressed: _opening
+                            ? null
+                            : () => _openMemory(c.memoryId),
                       ),
                     )
                     .toList(),

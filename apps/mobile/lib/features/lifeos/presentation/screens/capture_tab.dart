@@ -9,6 +9,7 @@ import 'package:mobile/features/lifeos/presentation/screens/text_capture_screen.
 import 'package:mobile/features/lifeos/presentation/screens/voice_capture_screen.dart';
 import 'package:mobile/shared/widgets/app_button.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/profile_icon_button.dart';
 
 class CaptureTab extends ConsumerWidget {
   const CaptureTab({super.key});
@@ -48,8 +49,10 @@ class CaptureTab extends ConsumerWidget {
           IconButton(
             tooltip: 'Review queue',
             onPressed: () => _openReview(context),
+            iconSize: 28,
             icon: const Icon(Icons.sync_rounded),
           ),
+          const ProfileIconButton(),
         ],
       ),
       body: SafeArea(
@@ -138,7 +141,10 @@ class CaptureTab extends ConsumerWidget {
                         color: AppColors.primary(brightness),
                       ),
                       const SizedBox(width: AppSpacing.s12),
-                      Text('Memory preview', style: theme.textTheme.titleMedium),
+                      Text(
+                        'Memory preview',
+                        style: theme.textTheme.titleMedium,
+                      ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.s12),
@@ -248,10 +254,7 @@ class _PendingSyncSection extends ConsumerWidget {
             children: [
               for (var i = 0; i < queue.length; i++) ...[
                 if (i > 0)
-                  Container(
-                    height: 0.5,
-                    color: AppColors.border(brightness),
-                  ),
+                  Container(height: 0.5, color: AppColors.border(brightness)),
                 _QueuedRow(item: queue[i]),
               ],
             ],
@@ -292,9 +295,7 @@ class _QueuedRow extends ConsumerWidget {
 
     return ListTile(
       leading: Icon(
-        item.type == 'voice'
-            ? Icons.mic_none_rounded
-            : Icons.edit_note_rounded,
+        item.type == 'voice' ? Icons.mic_none_rounded : Icons.edit_note_rounded,
         color: AppColors.primary(brightness),
       ),
       title: Text(

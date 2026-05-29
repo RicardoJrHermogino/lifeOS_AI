@@ -26,9 +26,7 @@ export function startTranscriptionWorker(ai: AiService, jobs: JobsService): Work
 			// Consent gate: skip transcription/extraction if AI processing is disabled.
 			const settings = await getEffectiveSettings(userId)
 			if (!settings.aiProcessingConsent) {
-				logger.log(
-					`Skipping transcription for ${captureId}: AI processing consent disabled`
-				)
+				logger.log(`Skipping transcription for ${captureId}: AI processing consent disabled`)
 				await db
 					.update(rawCaptures)
 					.set({ status: "done", updatedAt: new Date() })

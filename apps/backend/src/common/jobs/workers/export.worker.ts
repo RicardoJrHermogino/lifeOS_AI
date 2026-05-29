@@ -21,14 +21,8 @@ export function startExportWorker(): Worker | null {
 			logger.log(`Building export ${exportId} for user ${userId}`)
 
 			const [user] = await db.select().from(users).where(eq(users.id, userId))
-			const userCaptures = await db
-				.select()
-				.from(rawCaptures)
-				.where(eq(rawCaptures.userId, userId))
-			const userMemories = await db
-				.select()
-				.from(memories)
-				.where(eq(memories.userId, userId))
+			const userCaptures = await db.select().from(rawCaptures).where(eq(rawCaptures.userId, userId))
+			const userMemories = await db.select().from(memories).where(eq(memories.userId, userId))
 			const userReflections = await db
 				.select()
 				.from(reflections)

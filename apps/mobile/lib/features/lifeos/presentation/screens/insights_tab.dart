@@ -7,6 +7,7 @@ import 'package:mobile/features/lifeos/data/reflections_repository.dart';
 import 'package:mobile/features/lifeos/presentation/providers/insights_controller.dart';
 import 'package:mobile/features/lifeos/presentation/screens/memory_review_detail_screen.dart';
 import 'package:mobile/shared/widgets/app_card.dart';
+import 'package:mobile/shared/widgets/profile_icon_button.dart';
 
 class InsightsTab extends ConsumerStatefulWidget {
   const InsightsTab({super.key});
@@ -151,6 +152,7 @@ class _InsightsTabState extends ConsumerState<InsightsTab> {
         title: const Text('Insights'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [ProfileIconButton()],
       ),
       body: SafeArea(
         child: Column(

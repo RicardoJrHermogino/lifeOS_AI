@@ -1,8 +1,4 @@
-import {
-	Injectable,
-	InternalServerErrorException,
-	NotFoundException,
-} from "@nestjs/common"
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common"
 import { and, eq } from "drizzle-orm"
 
 import { dataExports, users } from "@repo/db/schema"
@@ -15,10 +11,7 @@ export class ExportsService {
 	constructor(private readonly jobs: JobsService) {}
 
 	async request({ userId }: { userId: string }) {
-		const [row] = await db
-			.insert(dataExports)
-			.values({ userId, status: "pending" })
-			.returning()
+		const [row] = await db.insert(dataExports).values({ userId, status: "pending" }).returning()
 		if (!row) throw new InternalServerErrorException("Export not created")
 
 		await this.jobs.enqueue("export", { exportId: row.id, userId })

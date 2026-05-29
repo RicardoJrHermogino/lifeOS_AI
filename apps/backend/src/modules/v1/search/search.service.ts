@@ -78,7 +78,11 @@ export class SearchService {
 			.select({ id: memories.id, title: memories.title, status: memories.status })
 			.from(memories)
 			.where(
-				and(eq(memories.userId, userId), inArray(memories.id, citedIds), ne(memories.status, "deleted"))
+				and(
+					eq(memories.userId, userId),
+					inArray(memories.id, citedIds),
+					ne(memories.status, "deleted")
+				)
 			)
 		const liveById = new Map(live.map(m => [m.id, m]))
 		return {

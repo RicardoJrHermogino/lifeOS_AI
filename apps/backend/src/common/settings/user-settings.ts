@@ -2,9 +2,8 @@ import { eq } from "drizzle-orm"
 
 import { userSettings } from "@repo/db/schema"
 
-import { db } from "@/common/database/database.client"
-
 import type { ReflectionTone } from "@/common/ai/ai.types"
+import { db } from "@/common/database/database.client"
 
 /**
  * The subset of user settings that gates or shapes AI processing.
